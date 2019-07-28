@@ -60,9 +60,9 @@ def subscription_callback(topic, msg):
     state['delay'] = data['delay']
 
 def render(now):
-    r = 0
-    g = 0
-    b = 0
+    r = state['current_color']['r']
+    g = state['current_color']['g']
+    b = state['current_color']['b']
     
     animation_start_time = (state['last_instruction_time'] + state['delay'])
     animation_end_time = animation_start_time + state['animation_time'];
@@ -70,14 +70,8 @@ def render(now):
 
     if(now > animation_end_time):
         state['current_color']  = copy.copy(state['target_color'])
-        r = state['current_color']['r']
-        g = state['current_color']['g']
-        b = state['current_color']['b']
-    elif(now < animation_start_time):
-        r = state['current_color']['r']
-        g = state['current_color']['g']
-        b = state['current_color']['b'] 
-    else:
+
+    elif(now > animation_start_time):
         r = lerp(state['previous_color']['r'], state['target_color']['r'],elapsed_time /  state['animation_time'])
         g = lerp(state['previous_color']['g'], state['target_color']['g'],elapsed_time /  state['animation_time'])
         b = lerp(state['previous_color']['b'], state['target_color']['b'],elapsed_time /  state['animation_time'])

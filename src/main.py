@@ -28,6 +28,7 @@ state = {
 }
 
 last_render_time = 0
+last_ping_time = 0
 
 def lerp(a, b, u):
     return math.floor((1-u) * a + u * b)
@@ -60,22 +61,26 @@ def subscription_callback(topic, msg):
     state['delay'] = data['delay']
 
 def render(now):
-    r = state['current_color']['r']
-    g = state['current_color']['g']
-    b = state['current_color']['b']
+    global last_render_time
     
     animation_start_time = (state['last_instruction_time'] + state['delay'])
-    animation_end_time = animation_start_time + state['animation_time'];
+    animation_end_time = animation_start_time + state['animation_time']
     elapsed_time = now - animation_start_time
-
-    if(now > animation_end_time):
-        state['current_color']  = copy.copy(state['target_color'])
-
-    elif(now > animation_start_time):
+    
+    if(now < animation_start_time):
+        r = state['current_color']['r']
+        g = state['current_color']['g']
+        b = state['current_color']['b']  
+    elif(now > animation_start_time and now < animation_end_time):
         r = lerp(state['previous_color']['r'], state['target_color']['r'],elapsed_time /  state['animation_time'])
         g = lerp(state['previous_color']['g'], state['target_color']['g'],elapsed_time /  state['animation_time'])
         b = lerp(state['previous_color']['b'], state['target_color']['b'],elapsed_time /  state['animation_time'])
-    
+    else:
+        state['current_color']  = copy.copy(state['target_color'])
+        r = state['current_color']['r']
+        g = state['current_color']['g']
+        b = state['current_color']['b']
+
     for i in range(config.NUMBER_OF_PIXELS):
         np[i] = (r, g, b)
     
@@ -91,10 +96,19 @@ def main():
     c.connect()
     c.publish("connect", json.dumps(state))
     c.subscribe("color/"+state['id'])
+    
     while True:
+        global last_render_time
+        global last_ping_time
+
         now = time.ticks_ms()
+    
         if(now > last_render_time + config.RENDER_INTERVAL):
             render(now)
+
+        if(now > last_ping_time + config.PING_INTERVAL):
+            c.publish("connect", json.dumps(state))
+            last_ping_time = now
 
         c.check_msg()
     c.disconnect()

@@ -5,7 +5,7 @@ from machine import Pin
 from machine import unique_id
 from machine import Timer
 import json
-from umqtt.simple import MQTTClient
+from umqtt.robust import MQTTClient
 from binascii import hexlify
 import math
 import config
@@ -89,13 +89,13 @@ def render(now):
 
 
 def main():
-    c = MQTTClient(state['id'], config.server)
+    c = MQTTClient(state['id'], config.mqtt_server, config.mqtt_port, config.mqtt_user, config.mqtt_password)
     c.set_callback(subscription_callback)
-    c.set_last_will('disconnect', state['id'])
     print('subscribing to mqtt')
     c.connect()
     c.publish("connect", json.dumps(state))
     c.subscribe("color/"+state['id'])
+    print("subscribed")
     
     while True:
         global last_render_time
@@ -107,10 +107,13 @@ def main():
             render(now)
 
         if(now > last_ping_time + config.PING_INTERVAL):
+            print("ping")
+            print(json.dumps(state))
             c.publish("connect", json.dumps(state))
             last_ping_time = now
 
         c.check_msg()
+
     c.disconnect()
 
 do_connect()

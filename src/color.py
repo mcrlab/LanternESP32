@@ -24,7 +24,7 @@ def calculate_color(now,
     elapsed_time = now - animation_start_time
     animation_end_time = animation_start_time + animation_length
 
-    if(now < animation_start_time):
+    if(now <= animation_start_time):
         color_to_render = current_color
     elif(now > animation_start_time and now < animation_end_time):
         r = lerp(previous_color.r, target_color.r, elapsed_time / animation_length)
@@ -35,13 +35,3 @@ def calculate_color(now,
         color_to_render  = target_color
 
     return color_to_render
-
-def render(color, numberOfPixels):
-    global np
-    global last_render_time
-
-    for i in range(numberOfPixels):
-        np[i] = color.instruction()
-    
-    np.write() 
-    last_render_time = time.ticks_ms()

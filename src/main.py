@@ -1,7 +1,6 @@
 from binascii import hexlify
 import math
 import config
-import copy
 from color import Color
 from color import calculate_color
 import time
@@ -28,9 +27,9 @@ def do_connect():
     time.sleep(1.0)
 
 class View():
-    def __init__(self, number_of_pixels):
+    def __init__(self, pin, number_of_pixels):
         self.number_of_pixels = number_of_pixels
-        self.pin = Pin(0, Pin.OUT)   
+        self.pin = pin 
         self.np = NeoPixel(self.pin, self.number_of_pixels)  
         self.last_render_time = 0
         
@@ -44,7 +43,7 @@ def now():
     return time.ticks_ms()
 
 class App():
-    def __init__(self,id):
+    def __init__(self,id, view):
         self.id = id
 
         self.current_color = Color(0,0,0)
@@ -59,7 +58,7 @@ class App():
         self.c = MQTTClient(self.id, config.mqtt_server, config.mqtt_port, config.mqtt_user, config.mqtt_password)
         self.c.DEBUG = True
         self.c.set_callback(self.subscription_callback)
-        self.view = View(16)
+        self.view = view
 
     def subscription_callback(self, topic, message):
         data = json.loads(message)
@@ -109,6 +108,10 @@ class App():
 
         self.c.disconnect()
 
+id = hexlify(unique_id()).decode()
+pin = Pin(0, Pin.OUT)  
+
+view = View(pin, 16)
 do_connect()
-app = App("ID")
+app = App(id, view)
 app.main()

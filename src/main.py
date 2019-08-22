@@ -13,17 +13,20 @@ from machine import unique_id
 from machine import Timer
 from umqtt.robust import MQTTClient
 
-def do_connect():
+def do_connect(view):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-
+    view.render(Color(255,0,0))
+    time.sleep(1.0)
     if not wlan.isconnected():
         print('connecting to network...')
         wlan.connect(config.ssid, config.password)
-        while not wlan.isconnected():     
+        while not wlan.isconnected():    
+            view.render(Color(255,255,0)) 
             time.sleep(1.0)
             pass
-    print('network config:', wlan.ifconfig())     
+    print('network config:', wlan.ifconfig())
+    view.render(Color(0,255,0))     
     time.sleep(1.0)
 
 class View():
@@ -67,7 +70,16 @@ class App():
         self.animation_time = data['time']
         self.delay          = data['delay']
         self.last_instruction_time = now()
-    
+
+
+    def ping(self):
+        self.c.publish("connect", json.dumps({
+            "id" : self.id,
+            "current_color" : self.current_color.instruction()
+            }))
+        self.last_ping_time = now()
+
+
     def animate(self, current_time):
 
         animation_start_time = self.last_instruction_time + self.delay
@@ -79,15 +91,6 @@ class App():
                                             self.current_color,
                                             self.target_color)
         return color_to_render
-
-
-    def ping(self):
-        self.c.publish("connect", json.dumps({
-            "id" : self.id,
-            "current_color" : self.current_color.instruction()
-            }))
-        self.last_ping_time = now()
-
 
     def main(self):
         self.c.connect()
@@ -112,6 +115,6 @@ id = hexlify(unique_id()).decode()
 pin = Pin(0, Pin.OUT)  
 
 view = View(pin, 16)
-do_connect()
+do_connect(view)
 app = App(id, view)
 app.main()

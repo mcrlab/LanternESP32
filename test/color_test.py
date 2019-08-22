@@ -1,5 +1,5 @@
-from color import Color
-from color import calculate_color
+from "../src/color" import Color
+from "../src/color" import calculate_color
 
 class TestClassColor:
     def test_initialise(self):

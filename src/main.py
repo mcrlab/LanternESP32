@@ -7,11 +7,11 @@ import time
 import json
 
 import network
-from neopixel import NeoPixel
 from machine import Pin
 from machine import unique_id
 from machine import Timer
 from umqtt.robust import MQTTClient
+from view import View
 
 def do_connect(view):
     wlan = network.WLAN(network.STA_IF)
@@ -29,18 +29,6 @@ def do_connect(view):
     view.render(Color(0,255,0))     
     time.sleep(1.0)
 
-class View():
-    def __init__(self, pin, number_of_pixels):
-        self.number_of_pixels = number_of_pixels
-        self.pin = pin 
-        self.np = NeoPixel(self.pin, self.number_of_pixels)  
-        self.last_render_time = 0
-        
-    def render(self, color):
-        for i in range(self.number_of_pixels):
-            self.np[i] = color.instruction()
-            self.np.write()
-            self.last_render_time = 0
 
 def now():
     return time.ticks_ms()

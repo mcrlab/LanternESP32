@@ -1,120 +1,114 @@
-import network
-import time
-from neopixel import NeoPixel
-from machine import Pin
-from machine import unique_id
-from machine import Timer
-import json
-from umqtt.robust import MQTTClient
 from binascii import hexlify
 import math
 import config
 import copy
-RED = (255,0,0)
-YELLOW = (255,255,0)
-GREEN = (0,255,0)
+from color import Color
+from color import calculate_color
+import time
+import json
 
-
-pin = Pin(0, Pin.OUT)   
-np = NeoPixel(pin, config.NUMBER_OF_PIXELS)   
-state = {
-    "id":hexlify(unique_id()).decode(),
-    "previous_color": {"r":0,"g":0,"b":0},
-    "current_color":{"r":0,"g":0,"b":0},
-    "target_color": {"r":0, "g":0,"b":0},
-    "animation_time": 2000,
-    "delay": 0,
-    "last_instruction_time": 0
-}
-
-last_render_time = 0
-last_ping_time = 0
-
-def lerp(a, b, u):
-    return math.floor((1-u) * a + u * b)
+import network
+from neopixel import NeoPixel
+from machine import Pin
+from machine import unique_id
+from machine import Timer
+from umqtt.robust import MQTTClient
 
 def do_connect():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    np[0] = RED
-    np.write()    
 
     if not wlan.isconnected():
         print('connecting to network...')
         wlan.connect(config.ssid, config.password)
-        while not wlan.isconnected():
-            np[0] = YELLOW
-            np.write()              
+        while not wlan.isconnected():     
             time.sleep(1.0)
             pass
-    print('network config:', wlan.ifconfig())
-    np[0] = GREEN 
-    np.write()             
+    print('network config:', wlan.ifconfig())     
     time.sleep(1.0)
 
-def subscription_callback(topic, msg):
-    state['last_instruction_time'] = time.ticks_ms()
-    data = json.loads(msg)
-    state['previous_color'] = copy.copy(state['current_color'])
-    state['target_color'] = data['color']
-    state['animation_time'] = data['time']
-    state['delay'] = data['delay']
+class View():
+    def __init__(self, number_of_pixels):
+        self.number_of_pixels = number_of_pixels
+        self.pin = Pin(0, Pin.OUT)   
+        self.np = NeoPixel(self.pin, self.number_of_pixels)  
+        self.last_render_time = 0
+        
+    def render(self, color):
+        for i in range(self.number_of_pixels):
+            self.np[i] = color.instruction()
+            self.np.write()
+            self.last_render_time = 0
 
-def render(now):
-    global last_render_time
+def now():
+    return time.ticks_ms()
+
+class App():
+    def __init__(self,id):
+        self.id = id
+
+        self.current_color = Color(0,0,0)
+        self.previous_color = Color(0,0,0)
+        self.target_color = Color(0,0,0)
+        
+        self.delay = 0
+        self.last_instruction_time = 0
+        self.last_ping_time = 0 
+        self.animation_time = 0
+
+        self.c = MQTTClient(self.id, config.mqtt_server, config.mqtt_port, config.mqtt_user, config.mqtt_password)
+        self.c.DEBUG = True
+        self.c.set_callback(self.subscription_callback)
+        self.view = View(16)
+
+    def subscription_callback(self, topic, message):
+        data = json.loads(message)
+        self.previous_color = Color(self.current_color.r, self.current_color.g, self.current_color.b)
+        self.target_color   = Color(data['color']['r'],data['color']['g'],data['color']['b'])
+        self.animation_time = data['time']
+        self.delay          = data['delay']
+        self.last_instruction_time = now()
     
-    animation_start_time = (state['last_instruction_time'] + state['delay'])
-    animation_end_time = animation_start_time + state['animation_time']
-    elapsed_time = now - animation_start_time
-    
-    if(now < animation_start_time):
-        r = state['current_color']['r']
-        g = state['current_color']['g']
-        b = state['current_color']['b']  
-    elif(now > animation_start_time and now < animation_end_time):
-        r = lerp(state['previous_color']['r'], state['target_color']['r'],elapsed_time /  state['animation_time'])
-        g = lerp(state['previous_color']['g'], state['target_color']['g'],elapsed_time /  state['animation_time'])
-        b = lerp(state['previous_color']['b'], state['target_color']['b'],elapsed_time /  state['animation_time'])
-    else:
-        state['current_color']  = copy.copy(state['target_color'])
-        r = state['current_color']['r']
-        g = state['current_color']['g']
-        b = state['current_color']['b']
+    def animate(self, current_time):
 
-    for i in range(config.NUMBER_OF_PIXELS):
-        np[i] = (r, g, b)
-    
-    np.write() 
-    last_render_time = time.ticks_ms()
+        animation_start_time = self.last_instruction_time + self.delay
+
+        color_to_render = calculate_color(current_time, 
+                                            self.animation_time, 
+                                            animation_start_time, 
+                                            self.previous_color,
+                                            self.current_color,
+                                            self.target_color)
+        return color_to_render
 
 
-def main():
-    c = MQTTClient(state['id'], config.mqtt_server, config.mqtt_port, config.mqtt_user, config.mqtt_password)
-    c.set_callback(subscription_callback)
-    print('subscribing to mqtt')
-    c.connect()
-    c.publish("connect", json.dumps(state))
-    c.subscribe("color/"+state['id'])
-    print("subscribed")
-    
-    while True:
-        global last_render_time
-        global last_ping_time
+    def ping(self):
+        self.c.publish("connect", json.dumps({
+            "id" : self.id,
+            "current_color" : self.current_color.instruction()
+            }))
+        self.last_ping_time = now()
 
-        now = time.ticks_ms()
-    
-        if(now > last_render_time + config.RENDER_INTERVAL):
-            render(now)
 
-        if(now > last_ping_time + config.PING_INTERVAL):
-            print("ping")
-            print(json.dumps(state))
-            c.publish("connect", json.dumps(state))
-            last_ping_time = now
+    def main(self):
+        self.c.connect()
+        self.ping()
+        self.c.subscribe("color/"+self.id)
 
-        c.check_msg()
+        while True:
+            current_time = now()
 
-    c.disconnect()
+            if(current_time > self.view.last_render_time + config.RENDER_INTERVAL):
+                self.current_color = self.animate(current_time)
+                self.view.render(self.current_color)
+
+            if(current_time > self.last_ping_time + config.PING_INTERVAL):
+                self.ping()
+
+            self.c.check_msg()
+
+        self.c.disconnect()
 
 do_connect()
-main()
+app = App("ID")
+app.main()

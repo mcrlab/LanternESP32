@@ -1,5 +1,5 @@
 import math
-from color import Color
+from .color import Color
 
 class Palette():
     def __init__(self):

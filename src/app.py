@@ -62,7 +62,7 @@ class App():
         current_time = now()
         update = json.dumps({
             "id" : self.id,
-            "current_color" : self.palette.color_to_render(current_time).asObject()
+            "current_color" : self.palette.color_to_render(current_time).as_object()
             })
         self.c.publish("connect", update)
         self.last_ping_time = current_time

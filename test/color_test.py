@@ -1,50 +1,31 @@
-from "../src/color" import Color
-from "../src/color" import calculate_color
+from src import color
 
 class TestClassColor:
     def test_initialise(self):
-        color = Color(255,128, 0)
-        assert color.r == 255
-        assert color.g == 128
-        assert color.b == 0
+        c = color.Color(255,128, 0)
+        assert c.r == 255
+        assert c.g == 128
+        assert c.b == 0
 
     def test_instruction(self):
-        color = Color(255,128, 0)
-        assert color.instruction() == (255,128,0)
+        c = color.Color(255,128, 0)
+        assert c.instruction() == (255,128,0)
 
-class TestCalculateColor:
-    def test_before_animation_starts(self):
-        now = 0
-        animation_length = 10
-        animation_start_time = 5  
-        previous_color = Color(255,0,0)
-        current_color = Color(255,0,0)
-        target_color = Color(0,0,255)
-        
-        calculated_color = calculate_color(now, animation_length, animation_start_time, previous_color, current_color, target_color)
-        assert calculated_color == current_color
+    def test_to_object(self):
+        c = color.Color(255, 0, 255)
+        assert c.as_object() == {"r": 255, "g": 0, "b": 255}
 
-    def test_mid_animation(self):
-        now = 5
-        animation_length = 10
-        animation_start_time = 0  
-        previous_color = Color(255,0,0)
-        current_color = Color(255,0,0)
-        target_color = Color(0,0,255)
-        
-        calculated_color = calculate_color(now, animation_length, animation_start_time, previous_color, current_color, target_color)
-        assert calculated_color.r == 127
-        assert calculated_color.g == 0
-        assert calculated_color.b == 127
-        
+    def test_normalise_should_not_affect_color_less_than_target(self):
+        c = color.Color(255,0,0)
+        c.normalise(512)
+        assert c.as_object() == { "r": 255, "g": 0, "b": 0}
 
-    def test_before_animation_starts(self):
-        now = 16
-        animation_length = 10
-        animation_start_time = 5  
-        previous_color = Color(255,0,0)
-        current_color = Color(255,0,0)
-        target_color = Color(0,0,255)
-        
-        calculated_color = calculate_color(now, animation_length, animation_start_time, previous_color, current_color, target_color)
-        assert calculated_color == target_color
+    def test_normalise_should_not_affect_color_less_than_target(self):
+        c = color.Color(255,255,0)
+        c.normalise(512)
+        assert c.as_object() == { "r": 255, "g": 255, "b": 0}
+
+    def test_normalise_should_not_affect_color_less_than_target(self):
+        c = color.Color(255,255,255)
+        c.normalise(512)
+        assert c.as_object() == { "r": 170, "g": 170, "b": 170}

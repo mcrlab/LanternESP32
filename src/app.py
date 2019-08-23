@@ -1,8 +1,6 @@
 
 import math
 import config
-from color import Color
-from color import calculate_color
 import time
 import json
 
@@ -12,6 +10,8 @@ from machine import Timer
 from umqtt.robust import MQTTClient
 from view import View
 from palette import Palette
+
+from color import Color
 
 def do_connect(view):
     wlan = network.WLAN(network.STA_IF)

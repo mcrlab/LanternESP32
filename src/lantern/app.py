@@ -52,8 +52,7 @@ class App():
         color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
         animation_length = data['time']
         animation_start_time = current_time + data['delay']
-
-        self.palette.update(color, animation_length, animation_start_time) 
+        self.palette.update(color, animation_start_time, animation_length) 
         self.last_instruction_time = current_time
 
     def ping(self):

@@ -33,5 +33,7 @@ class Palette():
             color_to_render =  Color(r,g,b)
         else:
             color_to_render  = self.target_color
+            
+        self.current_color = color_to_render
 
         return color_to_render

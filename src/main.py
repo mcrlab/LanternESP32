@@ -1,8 +1,8 @@
 from binascii import hexlify
 from machine import Pin
-from app import App
-from view import View
-from app import do_connect
+from src.app import App
+from src.view import View
+from src.app import do_connect
 from machine import unique_id
 
 id = hexlify(unique_id()).decode()

@@ -1,17 +1,15 @@
-
 import math
-import config
 import time
 import json
 
 import network
-
 from machine import Timer
 from umqtt.robust import MQTTClient
-from view import View
-from palette import Palette
 
-from color import Color
+from src.config import config
+from src.view import View
+from src.palette import Palette
+from src.color import Color
 
 def do_connect(view):
     wlan = network.WLAN(network.STA_IF)
@@ -20,7 +18,7 @@ def do_connect(view):
     time.sleep(1.0)
     if not wlan.isconnected():
         print('connecting to network...')
-        wlan.connect(config.ssid, config.password)
+        wlan.connect(config['ssid'], config['password'])
         while not wlan.isconnected():    
             view.render(Color(255,255,0), now()) 
             time.sleep(1.0)
@@ -43,7 +41,7 @@ class App():
         self.last_instruction_time = 0
         self.last_ping_time = 0 
 
-        self.c = MQTTClient(self.id, config.mqtt_server, config.mqtt_port, config.mqtt_user, config.mqtt_password)
+        self.c = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
         self.c.DEBUG = True
         self.c.set_callback(self.subscription_callback)
         self.view = view
@@ -75,11 +73,11 @@ class App():
         while True:
             current_time = now()
 
-            if(current_time > self.view.last_render_time + config.RENDER_INTERVAL):
+            if(current_time > self.view.last_render_time + config['RENDER_INTERVAL']):
                 color = self.palette.color_to_render(current_time)
                 self.view.render(color, current_time)
 
-            if(current_time > self.last_ping_time + config.PING_INTERVAL):
+            if(current_time > self.last_ping_time + config['PING_INTERVAL']):
                 self.ping()
 
             self.c.check_msg()

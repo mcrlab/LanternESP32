@@ -1,5 +1,12 @@
-from src.color import Color
-from src.palette import Palette
+import os, sys
+
+
+lib_dir = os.path.join(os.path.dirname(__file__), '../src/')
+assert(os.path.exists(lib_dir))
+sys.path.insert(0, lib_dir)
+
+from lantern.color import Color
+from lantern.palette import Palette
 
 
 class TestPalette:

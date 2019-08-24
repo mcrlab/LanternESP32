@@ -6,10 +6,10 @@ import network
 from machine import Timer
 from umqtt.robust import MQTTClient
 
-from src.config import config
-from src.view import View
-from src.palette import Palette
-from src.color import Color
+from lantern.config import config
+from lantern.view import View
+from lantern.palette import Palette
+from lantern.color import Color
 
 def do_connect(view):
     wlan = network.WLAN(network.STA_IF)

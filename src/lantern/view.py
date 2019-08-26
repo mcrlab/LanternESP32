@@ -9,5 +9,6 @@ class View():
     def render(self, color, current_time):
         for i in range(self.number_of_pixels):
             self.np[i] = color.instruction()
-            self.np.write()
-            self.last_render_time = current_time
+        
+        self.np.write()
+        self.last_render_time = current_time

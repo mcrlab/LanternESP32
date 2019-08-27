@@ -52,3 +52,19 @@ class TestPalette:
         assert calculated_color.r == 0
         assert calculated_color.g == 0
         assert calculated_color.b == 255
+
+    def test_light_should_animate_from_current_color(self):
+        p = Palette()
+        red = Color(255,0,0)
+        blue = Color(0,0,255)
+        p.update(red, 0, 0)
+        calculated_color = p.color_to_render(1)
+        assert calculated_color.r == 255
+        p.update(blue, 5, 5)
+        assert p.color_to_render(5).r == 255
+        assert p.color_to_render(5).b == 0
+
+        assert p.color_to_render(10).r == 0
+        assert p.color_to_render(10).b == 255
+
+

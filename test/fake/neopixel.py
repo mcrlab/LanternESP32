@@ -7,4 +7,5 @@ class NeoPixel():
         pass
 
     def write(self):
+        print("############# PRINTING ##############")
         pass

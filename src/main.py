@@ -1,5 +1,6 @@
 from binascii import hexlify
 from machine import Pin
+from lantern.config import config
 from lantern.app import App
 from lantern.view import View
 from lantern.app import do_connect
@@ -10,5 +11,5 @@ pin = Pin(0, Pin.OUT)
 
 view = View(pin, 16)
 do_connect(view)
-app = App(id, view)
+app = App(id, config, view)
 app.main()

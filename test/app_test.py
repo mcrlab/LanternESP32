@@ -12,5 +12,12 @@ from lantern.app import App
 
 class TestClassApp():
     def test_initialisation(self):
-        a = App(1,2)
+        config = {
+            "mqtt_server":"",
+            "mqtt_port":"",
+            "mqtt_server":"",
+            "mqtt_user":"",
+            "mqtt_password":""
+        }
+        a = App(1,config, 3)
         assert 1 == 1

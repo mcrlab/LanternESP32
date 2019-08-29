@@ -6,12 +6,11 @@ import network
 from machine import Timer
 from umqtt.robust import MQTTClient
 
-from lantern.config import config
 from lantern.view import View
 from lantern.palette import Palette
 from lantern.color import Color
 
-def do_connect(view):
+def do_connect(view, config):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     view.render(Color(255,0,0), now())
@@ -33,15 +32,15 @@ def now():
 
 
 class App():
-    def __init__(self,id, view):
+    def __init__(self,id, config, view):
         self.id = id
-
+        self.config = config
         self.palette = Palette()
 
         self.last_instruction_time = 0
         self.last_ping_time = 0 
 
-        self.c = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+        self.c = MQTTClient(self.id, self.config['mqtt_server'], self.config['mqtt_port'], self.config['mqtt_user'], self.config['mqtt_password'])
         self.c.DEBUG = True
         self.c.set_callback(self.subscription_callback)
         self.view = view
@@ -72,11 +71,12 @@ class App():
         while True:
             current_time = now()
 
-            if(current_time > self.view.last_render_time + config['RENDER_INTERVAL']):
+            if(current_time > self.view.last_render_time + self.config['RENDER_INTERVAL']):
                 color = self.palette.color_to_render(current_time)
                 self.view.render(color, current_time)
+                print("rendering")
 
-            if(current_time > self.last_ping_time + config['PING_INTERVAL']):
+            if(current_time > self.last_ping_time + self.config['PING_INTERVAL']):
                 self.ping()
 
             self.c.check_msg()

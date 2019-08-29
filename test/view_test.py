@@ -10,6 +10,7 @@ sys.path.insert(0, fake_dir)
 
 from lantern.view import View
 from lantern.color import Color
+from unittest.mock import patch
 
 class TestClassView():
     def test_intialisation(self):
@@ -18,10 +19,12 @@ class TestClassView():
         v = View(pin, number_of_pixels)
         assert v.number_of_pixels == number_of_pixels
 
-    def test_render(self):
+    @patch('neopixel.NeoPixel')
+    def test_render(self, something):
         current_time = 15
         pin = 0
         number_of_pixels = 16
         v = View(pin, number_of_pixels)
         v.render(Color(0,0,0), current_time)
         assert v.last_render_time == current_time     
+

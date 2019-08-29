@@ -1,6 +1,6 @@
 from binascii import hexlify
 from machine import Pin
-from lantern.config import config
+from .config import config
 from lantern.app import App
 from lantern.view import View
 from lantern.app import do_connect

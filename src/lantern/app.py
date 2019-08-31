@@ -2,7 +2,6 @@ import math
 import time
 import json
 
-import network
 from machine import Timer
 from umqtt.robust import MQTTClient
 
@@ -10,26 +9,9 @@ from lantern.view import View
 from lantern.palette import Palette
 from lantern.color import Color
 
-def do_connect(view, config):
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    view.render(Color(255,0,0), now())
-    time.sleep(1.0)
-    if not wlan.isconnected():
-        print('connecting to network...')
-        wlan.connect(config['ssid'], config['password'])
-        while not wlan.isconnected():    
-            view.render(Color(255,255,0), now()) 
-            time.sleep(1.0)
-            pass
-    print('network config:', wlan.ifconfig())
-    view.render(Color(0,255,0), now())     
-    time.sleep(1.0)
-
 
 def now():
     return time.ticks_ms()
-
 
 class App():
     def __init__(self,id, config, view):

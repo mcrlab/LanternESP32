@@ -45,22 +45,36 @@ class App():
         self.c.publish("connect", update)
         self.last_ping_time = current_time
 
-    def main(self):
-        self.c.connect()
-        self.ping()
-        self.c.subscribe("color/"+self.id)
+    def main(self, retries):
+        try:
+            self.c.connect()
+            self.ping()
+            self.c.subscribe("color/"+self.id)
 
-        while True:
-            current_time = now()
+            while True:
+                current_time = now()
 
-            if(current_time > self.view.last_render_time + self.config['RENDER_INTERVAL']):
-                color = self.palette.color_to_render(current_time)
-                self.view.render(color, current_time)
-                print("rendering")
+                if(current_time > self.view.last_render_time + self.config['RENDER_INTERVAL']):
+                    color = self.palette.color_to_render(current_time)
+                    self.view.render(color, current_time)
+                    print("rendering")
 
-            if(current_time > self.last_ping_time + self.config['PING_INTERVAL']):
-                self.ping()
+                if(current_time > self.last_ping_time + self.config['PING_INTERVAL']):
+                    self.ping()
 
-            self.c.check_msg()
+                self.c.check_msg()
 
-        self.c.disconnect()
+            self.c.disconnect()
+        except OSError:
+            print("Connection error")
+            time.sleep(5)
+            if(retries > 0):
+                retries = retries - 1
+                self.main(retries)
+            else:
+                print("Failed too many times")
+                self.view.render(Color(0,0,255), now())
+                time.sleep(5)
+                self.view.render(Color(0,0,0), now())
+            
+            

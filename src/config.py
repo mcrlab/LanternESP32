@@ -1,7 +1,7 @@
 config = {
     "ssid" : 'PLUSNET-HHQJC9',
     "password" : 'f6db6dd64c',
-    "mqtt_server" : '192.168.1.1',
+    "mqtt_server" : 'mqtt.mcrlab.co.uk',
     "mqtt_port" : 1883,
     "mqtt_user" : "lantern",
     "mqtt_password" : "ilovelamp",

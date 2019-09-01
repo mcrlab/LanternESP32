@@ -1,6 +1,4 @@
 import os, sys
-
-
 lib_dir = os.path.join(os.path.dirname(__file__), '../src/')
 assert(os.path.exists(lib_dir))
 sys.path.insert(0, lib_dir)
@@ -23,7 +21,7 @@ class TestPalette:
         animation_length = 10
         animation_start_time = 5  
         target_color = Color(0,0,255)
-        p.update(target_color, animation_start_time, animation_length)
+        p.update(target_color, animation_start_time, animation_length, now)
 
         calculated_color = p.color_to_render(now)
         assert calculated_color.instruction() == Color(0,0,0).instruction()
@@ -35,7 +33,7 @@ class TestPalette:
         animation_length = 10
         animation_start_time = 0  
         target_color = Color(0,0,255)
-        p.update(target_color, animation_start_time, animation_length)
+        p.update(target_color, animation_start_time, animation_length, now)
         calculated_color = p.color_to_render(now)
         assert calculated_color.r == 0
         assert calculated_color.g == 0
@@ -47,7 +45,7 @@ class TestPalette:
         animation_length = 10
         animation_start_time = 5  
         target_color = Color(0,0,255)
-        p.update(target_color, animation_start_time, animation_length)
+        p.update(target_color, animation_start_time, animation_length, now)
         calculated_color = p.color_to_render(now)
         assert calculated_color.r == 0
         assert calculated_color.g == 0
@@ -57,10 +55,10 @@ class TestPalette:
         p = Palette()
         red = Color(255,0,0)
         blue = Color(0,0,255)
-        p.update(red, 0, 0)
+        p.update(red, 0, 0, 0)
         calculated_color = p.color_to_render(1)
         assert calculated_color.r == 255
-        p.update(blue, 5, 5)
+        p.update(blue, 5, 5, 0)
         assert p.color_to_render(5).r == 255
         assert p.color_to_render(5).b == 0
 

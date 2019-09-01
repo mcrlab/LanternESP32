@@ -29,7 +29,7 @@ def do_connect(view, config):
 
 
 id = hexlify(unique_id()).decode()
-pin = Pin(0, Pin.OUT)  
+pin = Pin(5, Pin.OUT)  
 
 view = View(pin, 16)
 do_connect(view, config)

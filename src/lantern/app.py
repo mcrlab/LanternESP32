@@ -28,13 +28,16 @@ class App():
         self.view = view
 
     def subscription_callback(self, topic, message):
-        current_time = now()
-        data = json.loads(message)
-        color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
-        animation_length = data['time']
-        animation_start_time = current_time + data['delay']
-        self.palette.update(color, animation_start_time, animation_length) 
-        self.last_instruction_time = current_time
+        try:
+            current_time = now()
+            data = json.loads(message)
+            color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
+            animation_length = data['time']
+            animation_start_time = current_time + data['delay']
+            self.palette.update(color, animation_start_time, animation_length, current_time) 
+            self.last_instruction_time = current_time
+        except:
+            print("Error in subscription callback")
 
     def ping(self):
         current_time = now()
@@ -57,7 +60,7 @@ class App():
                 if(current_time > self.view.last_render_time + self.config['RENDER_INTERVAL']):
                     color = self.palette.color_to_render(current_time)
                     self.view.render(color, current_time)
-                    print("rendering")
+
 
                 if(current_time > self.last_ping_time + self.config['PING_INTERVAL']):
                     self.ping()

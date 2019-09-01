@@ -19,7 +19,7 @@ class TestClassView():
         number_of_pixels = 16
         v = View(pin, number_of_pixels)
         assert v.number_of_pixels == number_of_pixels
-
+    
     def test_render(self, monkeypatch):
         def mock_write(self):
             print("CHEESE")

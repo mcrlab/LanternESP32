@@ -1,31 +1,99 @@
 # Lantern IoT
 
+Lantern is a simple IoT project to get started with MQTT, basic electronics and IoT. It uses MicroPython
+
+## Install Dependencies
 Install Python 3
+
 https://www.saintlad.com/install-python-3-on-mac/
 
 
-Install VirtualEnv
+**Install VirtualEnv**
+
+https://sourabhbajaj.com/mac-setup/Python/virtualenv.html
 
 
-Serial Chip
+## Set up Virtual Env
+```
+virtualenv venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+## Install Micropython Firmware
+
+### Install Serial Chip Drivers
+
 https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
 
-Erase the Flash
-```
-esptool.py -p PORT erase_flash
-```
-# Flash Micropython Firmware
-## esp8266
-```
-esptool.py -p PORT --baud 115200 write_flash --flash_size=detect 0 firmware.bin
-```
-## esp32
-```
-esptool.py --chip esp32 --port /dev/cu.SLAB_USBtoUART --baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
-```
+### Connect to device
+
+find the serial port the device is connected to. It will mount on a mac something similar to:
+
+/dev/cu.wcch********
+
+set this as an environment file either in a .env or run:
 
 ```
-ampy -p PORT put src/lantern lantern
+export SERIAL_PORT=/dev/cu.wc******
 ```
 
-ampy -p PORT put src/main.py main.py
+
+### Erase the Flash
+```
+esptool.py -p $SERIAL_PORT erase_flash
+```
+### Flash Micropython Firmware
+
+
+**Chip esp8266**
+```
+esptool.py -p $SERIAL_PORT --baud 115200 write_flash --flash_size=detect 0 firmware.bin
+```
+
+**Chip esp32**
+```
+esptool.py --chip esp32 --port $SERIAL_PORT--baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
+```
+
+## Connect to the device
+
+```
+picocom $SERIAL_PORT -b 115200
+```
+
+command a x to exit
+
+
+## Provision the device
+We need to install the python libraries that run the light. These will cover connecting to Wifi, subscribing to the MQTT broker and turning the lights on and off.
+
+We're going to use ampy, a python library to upload our source files to the device.
+
+
+```
+ampy -p $SERIAL_PORT put src/lantern lantern
+
+ampy -p $SERIAL_PORT put src/config.py config.py
+
+ampy -p $SERIAL_PORT put src/main.py main.py
+```
+
+
+#Connect the WS8212 Lights
+
+Disconnect the device from your laptop and take the LEDs and connect them to the following device pins
+
+red to 3v
+black to gnd
+data to D1
+
+## Reboot the device
+Connect back to power.
+
+The light should: 
+ - turn red for a second after powering on
+ - turn yellow whilst it connects to the wifi
+ - turn green as it subscribes to the MQTT broker  

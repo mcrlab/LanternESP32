@@ -13,6 +13,12 @@ https://www.saintlad.com/install-python-3-on-mac/
 https://sourabhbajaj.com/mac-setup/Python/virtualenv.html
 
 
+**Install Picocom**
+
+```
+brew install picocom
+```
+
 ## Set up Virtual Env
 ```
 virtualenv venv
@@ -55,7 +61,7 @@ esptool.py -p $SERIAL_PORT --baud 115200 write_flash --flash_size=detect 0 firmw
 
 **Chip esp32**
 ```
-esptool.py --chip esp32 --port $SERIAL_PORT--baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
+esptool.py --chip esp32 --port $SERIAL_PORT --baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
 ```
 
 ## Connect to the device

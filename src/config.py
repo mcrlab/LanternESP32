@@ -1,6 +1,6 @@
 config = {
-    "ssid" : 'PLUSNET-HHQJC9',
-    "password" : 'f6db6dd64c',
+    "ssid" : 'twguest',
+    "password" : 'heroic crab mammal dual swig',
     "mqtt_server" : 'mqtt.mcrlab.co.uk',
     "mqtt_port" : 1883,
     "mqtt_user" : "lantern",

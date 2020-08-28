@@ -6,6 +6,7 @@ from lantern.app import now
 from lantern.view import View
 from lantern.color import Color
 from machine import unique_id
+from umqtt.robust import MQTTClient
 import network
 import time
 
@@ -26,12 +27,14 @@ def do_connect(view, config):
     view.render(Color(0,255,0), now())     
     time.sleep(1.0)
 
-
+def now():
+    time.ticks_ms()
 
 id = hexlify(unique_id()).decode()
 pin = Pin(5, Pin.OUT)  
-
+broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+broker.DEBUG = True
 view = View(pin, config['NUMBER_OF_PIXELS'])
 do_connect(view, config)
-app = App(id, config, view)
+app = App(id, config, view, broker, now)
 app.main(10)

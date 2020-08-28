@@ -7,5 +7,5 @@ config = {
     "mqtt_password" : "ilovelamp",
     "NUMBER_OF_PIXELS" : 25,
     "RENDER_INTERVAL" : 50,
-    "PING_INTERVAL" : 10000,
+    "PING_INTERVAL" : 10.0,
 }

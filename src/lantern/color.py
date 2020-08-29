@@ -22,4 +22,4 @@ class Color():
             "b": self.b
         }
     def as_hex(self):
-        return '{:02x}{:02x}{:02x}'.format( self.r, self.g , self.b )
+        return '#{:02x}{:02x}{:02x}'.format( self.r, self.g , self.b )

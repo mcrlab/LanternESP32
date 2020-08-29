@@ -10,6 +10,8 @@ from umqtt.robust import MQTTClient
 import network
 import time
 
+def now():
+    return time.ticks_ms()
 
 def do_connect(view, config):
     wlan = network.WLAN(network.STA_IF)
@@ -27,14 +29,16 @@ def do_connect(view, config):
     view.render(Color(0,255,0), now())     
     time.sleep(1.0)
 
-def now():
-    time.ticks_ms()
+def main():
+    id = hexlify(unique_id()).decode()
+    pin = Pin(5, Pin.OUT)  
 
-id = hexlify(unique_id()).decode()
-pin = Pin(5, Pin.OUT)  
-broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
-broker.DEBUG = True
-view = View(pin, config['NUMBER_OF_PIXELS'])
-do_connect(view, config)
-app = App(id, config, view, broker, now)
-app.main(10)
+    broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+    broker.DEBUG = True
+
+    view = View(pin, config['NUMBER_OF_PIXELS'])
+    do_connect(view, config)
+    app = App(id, config, view, broker, now)
+    app.main(10)
+
+main()

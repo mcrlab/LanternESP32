@@ -8,14 +8,15 @@ class App():
     def __init__(self,id, config, view, broker, now):
         self.id = id
         self.config = config
-        self.palette = Palette()
+        self.view = view
+        self.c = broker
+        self.now = now
 
+        self.palette = Palette()
         self.last_instruction_time = 0
         self.last_ping_time = 0 
-        self.c = broker
+        self.last_render_time = 0
         self.c.set_callback(self.subscription_callback)
-        self.view = view
-        self.now = now
 
     def subscription_callback(self, topic, message):
         try:
@@ -29,8 +30,8 @@ class App():
         except Exception as inst:
             print("Error in subscription callback", inst)
 
-    def ping(self):
-        current_time = self.now()
+    def ping(self, current_time):
+        print("ping")
         update = json.dumps({
             "id" : self.id,
             "current_color" : self.palette.color_to_render(current_time).as_object()
@@ -40,25 +41,26 @@ class App():
 
     def main(self, retries):
         try:
-            pass
+            print(self.config)
             self.c.connect()
-            self.ping()
+            self.ping(self.now())
             self.c.subscribe("color/"+self.id)
-
+            self.last_render_time = self.now()
             while True:
                 current_time = self.now()
-
-                if(current_time - self.view.last_render_time > self.config['RENDER_INTERVAL']):
+                
+                if((current_time - self.last_render_time) > self.config['RENDER_INTERVAL']):
                     color = self.palette.color_to_render(current_time)
                     self.view.render(color, current_time)
+                    self.last_render_time = current_time
 
                 if((current_time - self.last_ping_time) > self.config['PING_INTERVAL']):
-                    self.ping()
+                    self.ping(current_time)
 
                 self.c.check_msg()
                 
-
             self.c.disconnect()
+
         except OSError:
             print("Connection error")
             time.sleep(5)

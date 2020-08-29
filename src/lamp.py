@@ -1,9 +1,9 @@
 import paho.mqtt.client as mqtt
 import time
 import json
-from lantern.color import Color
-from lantern.palette import Palette
 from lantern.app import App
+import tkinter
+from tkinter import *
 
 config = {
     "ssid" : 'twguest',
@@ -13,12 +13,10 @@ config = {
     "mqtt_user" : "lantern",
     "mqtt_password" : "ilovelamp",
     "NUMBER_OF_PIXELS" : 16,
-    "RENDER_INTERVAL" : 50,
+    "RENDER_INTERVAL" : 500,
     "PING_INTERVAL" : 10000,
 }
 
-id = "james"
-palette = Palette()
 
 class Broker():
     def __init__(self):
@@ -56,18 +54,27 @@ class View():
     
     def __init__(self):
         self.last_render_time = 0
+        #self.root = tkinter.Tk()
         
     def render(self, color, current_time):
         self.last_render_time=time.time()
-        
         print(color.as_hex())
+        #self.root.configure(background=color.as_hex())
         
+
+class Lamp():
+    def __init__(self, id):
+        self.id = id
+        pass
+
+    def start(self):
+        view = View()
+        broker = Broker()    
+        app = App(self.id, config, view, broker, now)
+        app.main(1)
+
 
 def now():
     return int(round(time.time() * 1000))
 
-view = View()
-
-broker = Broker()    
-app = App(id, config, view, broker, now)
-app.main(1)
+Lamp("james").start();

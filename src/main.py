@@ -31,7 +31,7 @@ def do_connect(view, config):
 id = hexlify(unique_id()).decode()
 pin = Pin(5, Pin.OUT)  
 
-view = View(pin, 16)
+view = View(pin, config['NUMBER_OF_PIXELS'])
 do_connect(view, config)
 app = App(id, config, view)
 app.main(10)

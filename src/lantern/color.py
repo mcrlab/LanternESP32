@@ -12,7 +12,7 @@ class Color():
             self.g = int(self.g * fraction)
             self.b = int(self.b * fraction)
 
-    def instruction(self):
+    def as_instruction(self):
         return (self.r, self.g, self.b)
     
     def as_object(self):

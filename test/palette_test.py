@@ -13,7 +13,7 @@ class TestPalette:
         black = Color(0,0,0)
         p = Palette()
         current_color = p.color_to_render(now)
-        assert current_color.instruction() == black.instruction()
+        assert current_color.as_instruction() == black.as_instruction()
         
     def test_before_animation_starts(self):
         p = Palette()
@@ -24,7 +24,7 @@ class TestPalette:
         p.update(target_color, animation_start_time, animation_length, now)
 
         calculated_color = p.color_to_render(now)
-        assert calculated_color.instruction() == Color(0,0,0).instruction()
+        assert calculated_color.as_instruction() == Color(0,0,0).as_instruction()
 
 
     def test_mid_animation(self):

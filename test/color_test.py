@@ -13,9 +13,9 @@ class TestClassColor:
         assert c.g == 128
         assert c.b == 0
 
-    def test_instruction(self):
+    def test_as_instruction(self):
         c = color.Color(255,128, 0)
-        assert c.instruction() == (255,128,0)
+        assert c.as_instruction() == (255,128,0)
 
     def test_to_object(self):
         c = color.Color(255, 0, 255)

@@ -9,14 +9,14 @@ class App():
         self.id = id
         self.config = config
         self.view = view
-        self.c = broker
+        self.broker = broker
         self.now = now
 
-        self.palette = Palette()
+        self.palette = Palette(view.number_of_pixels)
         self.last_instruction_time = 0
         self.last_ping_time = 0 
         self.last_render_time = 0
-        self.c.set_callback(self.subscription_callback)
+        self.broker.set_callback(self.subscription_callback)
 
     def subscription_callback(self, topic, message):
         try:
@@ -31,38 +31,37 @@ class App():
             print("Error in subscription callback", inst)
 
     def ping(self, current_time):
-        print("ping")
         update = json.dumps({
             "id" : self.id,
             "current_color" : self.palette.color_to_render(current_time).as_object()
             })
-        self.c.publish("connect", update)
+        self.broker.publish("connect", update)
         self.last_ping_time = current_time
 
     def main(self, retries):
         try:
-            print(self.config)
-            self.c.connect()
+            self.broker.connect()
             self.ping(self.now())
-            self.c.subscribe("color/"+self.id)
+            self.broker.subscribe("color/"+self.id)
             self.last_render_time = self.now()
             while True:
                 current_time = self.now()
                 
                 if((current_time - self.last_render_time) > self.config['RENDER_INTERVAL']):
-                    color = self.palette.color_to_render(current_time)
-                    self.view.render(color, current_time)
+                    color_buffer = self.palette.color_to_render(current_time)
+                    self.view.render(color_buffer, current_time)
                     self.last_render_time = current_time
 
                 if((current_time - self.last_ping_time) > self.config['PING_INTERVAL']):
                     self.ping(current_time)
 
-                self.c.check_msg()
+                self.broker.check_msg()
                 
-            self.c.disconnect()
-
-        except OSError:
-            print("Connection error")
+            self.broker.disconnect()
+        except TypeError as e:
+            print('error', e)
+        except OSError as error:
+            print("Connection error", error)
             time.sleep(5)
             if(retries > 0):
                 retries = retries - 1

@@ -2,7 +2,6 @@ from binascii import hexlify
 from machine import Pin
 from config import config
 from lantern.app import App
-from lantern.app import now
 from lantern.view import View
 from lantern.color import Color
 from machine import unique_id

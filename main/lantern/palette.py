@@ -3,8 +3,7 @@ from .color import Color
 from .animation import Animation
 
 class Palette():
-    def __init__(self, number_of_pixels):
-        self.number_of_pixels = number_of_pixels
+    def __init__(self):
         self.current_color = Color(0,0,0)
         self.animation = Animation(Color(0,0,0), Color(0,0,0), 0, 0)
 

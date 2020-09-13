@@ -1,6 +1,6 @@
 import os, sys
 
-lib_dir = os.path.join(os.path.dirname(__file__), '../src/')
+lib_dir = os.path.join(os.path.dirname(__file__), '../main/')
 assert(os.path.exists(lib_dir))
 sys.path.insert(0, lib_dir)
 

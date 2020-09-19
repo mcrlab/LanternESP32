@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
 import json
-from lantern.app import App
+from main.lantern.app import App
 
 config = {
     "ssid" : 'twguest',

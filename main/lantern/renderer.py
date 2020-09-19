@@ -16,6 +16,8 @@ class Renderer():
         self.color_buffer = [BLACK] * number_of_pixels
         self.easing = "ElasticEaseOut"
 
+
+
     def update(self, target_color, animation_start_time, animation_length, current_time, easing):
         self.animation = Animation(animation_start_time, animation_length)
         self.palette.update(self.current_color, target_color)

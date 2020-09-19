@@ -1,9 +1,9 @@
 import math
 import time
 import json
-from lantern.palette import Palette
-from lantern.color import Color
-from lantern.renderer import Renderer
+from .palette import Palette
+from .color import Color
+from .renderer import Renderer
 
 class App():
     def __init__(self,id, config, view, broker, now):

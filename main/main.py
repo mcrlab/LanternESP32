@@ -1,9 +1,9 @@
 from binascii import hexlify
-from machine import Pin
 from config import config
-from lantern.app import App
-from lantern.view import View
-from lantern.color import Color
+from .lantern.app import App
+from .lantern.view import View
+from .lantern.color import Color
+from machine import Pin
 from machine import unique_id
 from umqtt.robust import MQTTClient
 import network
@@ -34,10 +34,7 @@ def main():
 
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True
-
     view = View(pin, config['NUMBER_OF_PIXELS'])
     do_connect(view, config)
     app = App(id, config, view, broker, now)
     app.main(10)
-
-main()

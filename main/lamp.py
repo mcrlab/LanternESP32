@@ -10,8 +10,8 @@ config = {
     "mqtt_port" : 1883,
     "mqtt_user" : "lantern",
     "mqtt_password" : "ilovelamp",
-    "NUMBER_OF_PIXELS" : 5,
-    "RENDER_INTERVAL" : 500,
+    "NUMBER_OF_PIXELS" : 20,
+    "RENDER_INTERVAL" : 50,
     "PING_INTERVAL" : 10000,
 }
 
@@ -52,9 +52,11 @@ class View():
     def __init__(self, number_of_pixels = 5):
         self.number_of_pixels = number_of_pixels
 
-    def render(self, color, current_time):
+    def render(self, color_buffer, current_time):
         print(chr(27) + "[2J")
-        print(color.as_hex())
+        
+        for i in range(0, len(color_buffer)):
+            print(color_buffer[i].as_hex())
         
 
 class Lamp():
@@ -62,7 +64,7 @@ class Lamp():
         self.id = id
 
     def start(self):
-        view = View()
+        view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id)    
         app = App(self.id, config, view, broker, now)
         app.main(1)

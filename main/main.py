@@ -15,17 +15,17 @@ def now():
 def do_connect(view, config):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    view.render(Color(255,0,0), now())
+    view.render_color(Color(255,0,0))
     time.sleep(1.0)
     if not wlan.isconnected():
         print('connecting to network...')
         wlan.connect(config['ssid'], config['password'])
         while not wlan.isconnected():    
-            view.render(Color(255,255,0), now()) 
+            view.render_color(Color(255,255,0))
             time.sleep(1.0)
             pass
     print('network config:', wlan.ifconfig())
-    view.render(Color(0,255,0), now())     
+    view.render_color(Color(0,255,0))    
     time.sleep(1.0)
 
 def main():

@@ -30,7 +30,7 @@ class TestClassView():
         pin = 0
         number_of_pixels = 16
         v = View(pin, number_of_pixels)
-        v.render(Color(0,0,0), current_time)
+        v.render([Color(0,0,0)], current_time)
         
         
         assert v.last_render_time == current_time     

@@ -1,8 +1,18 @@
+def test(color):
+    if(color < 0):
+        return 0
+    elif(color > 255):
+        return 255
+    else:
+        return color
+
+
 class Color():
     def __init__(self, r, g, b):
-        self.r = r
-        self.g = g
-        self.b = b
+        self.r = test(int(r))
+        self.g = test(int(g))
+        self.b = test(int(b))
+        
 
     def normalise(self, maximum_brightness):
         total = self.r + self.g + self.b

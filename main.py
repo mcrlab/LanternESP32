@@ -1,5 +1,5 @@
-from ota_update.main.ota_updater import OTAUpdater
-from main.main import main as app
+from lantern.main.ota_updater import OTAUpdater
+from lantern.main.main import start as app
 
 def download_and_install_update_if_available():
     o = OTAUpdater('https://github.com/mcrlab/LanternIoT')

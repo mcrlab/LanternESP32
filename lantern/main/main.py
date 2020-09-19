@@ -1,8 +1,8 @@
 from binascii import hexlify
-from config import config
-from .lantern.app import App
-from .lantern.view import View
-from .lantern.color import Color
+from .config import config
+from .app import App
+from .view import View
+from .color import Color
 from machine import Pin
 from machine import unique_id
 from umqtt.robust import MQTTClient
@@ -28,7 +28,7 @@ def do_connect(view, config):
     view.render_color(Color(0,255,0))    
     time.sleep(1.0)
 
-def main():
+def start():
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  
 

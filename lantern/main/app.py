@@ -6,7 +6,7 @@ from .color import Color
 from .renderer import Renderer
 
 class App():
-    def __init__(self,id, config, view, broker, now):
+    def __init__(self,id, config, view, broker, now, updater):
         self.id = id
         self.config = config
         self.view = view
@@ -17,24 +17,30 @@ class App():
         self.last_ping_time = 0 
         self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
+        self.updater = updater
     
 
 
     def subscription_callback(self, topic, message):
         try:
-            current_time = self.now()
-            data = json.loads(message)
-            color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
-            animation_length = data['time']
-            animation_start_time = current_time + data['delay']
-            print(data)
-            if 'easing' in data:
-                easing = data['easing']
-            else:
-                easing = "ElasticEaseOut"
+            if "color" in topic:
+                current_time = self.now()
+                data = json.loads(message)
+                color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
+                animation_length = data['time']
+                animation_start_time = current_time + data['delay']
+                print(data)
+                if 'easing' in data:
+                    easing = data['easing']
+                else:
+                    easing = "ElasticEaseOut"
 
-            self.renderer.update(color, animation_start_time, animation_length, current_time, easing) 
-            self.last_instruction_time = current_time
+                self.renderer.update(color, animation_start_time, animation_length, current_time, easing) 
+                self.last_instruction_time = current_time
+            else:
+                print("updating")
+                self.updater.check_for_update_to_install_during_next_reboot()
+                print("reboot")
         except Exception as inst:
             print("Error in subscription callback", inst)
 
@@ -53,6 +59,7 @@ class App():
             self.broker.connect()
             self.ping(self.now())
             self.broker.subscribe("color/"+self.id)
+            self.broker.subscribe("config/"+self.id)
             self.last_render_time = self.now()
             while True:
                 current_time = self.now()

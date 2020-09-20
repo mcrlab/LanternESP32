@@ -8,6 +8,7 @@ from machine import unique_id
 from umqtt.robust import MQTTClient
 import network
 import time
+from ota_updater import OTAUpdater
 
 def now():
     return time.ticks_ms()
@@ -28,7 +29,7 @@ def do_connect(view, config):
     view.render_color(Color(0,255,0))    
     time.sleep(1.0)
 
-def start():
+def start(updater):
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  
 
@@ -36,5 +37,5 @@ def start():
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
     do_connect(view, config)
-    app = App(id, config, view, broker, now)
+    app = App(id, config, view, broker, now, updater)
     app.main(10)

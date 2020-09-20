@@ -23,6 +23,7 @@ class Broker():
         
     def on_message(self, user, topic, message):
         try:
+            topic = str(message.topic)
             message = str(message.payload.decode("utf-8"))
             self.callback(topic, message)
 
@@ -39,6 +40,7 @@ class Broker():
 
     
     def subscribe(self, topic):
+        print("subscribing to: ", topic)
         self.client.subscribe(topic)
         self.client.loop_start()
     
@@ -53,6 +55,7 @@ class View():
         self.number_of_pixels = number_of_pixels
 
     def render(self, color_buffer, current_time):
+        return
         print(chr(27) + "[2J")
         
         for i in range(0, len(color_buffer)):
@@ -63,14 +66,22 @@ class Lamp():
     def __init__(self, id):
         self.id = id
 
-    def start(self):
+    def start(self, updater):
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id)    
-        app = App(self.id, config, view, broker, now)
+        app = App(self.id, config, view, broker, now, updater)
         app.main(1)
 
+class Updater():
+    def __init__(self):
+        pass
+    
+    def check_for_update_to_install_during_next_reboot(self):
+        print("updating")
+        
 
+    
 def now():
     return int(round(time.time() * 1000))
 
-Lamp("james").start()
+Lamp("james").start(Updater())

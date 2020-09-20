@@ -5,6 +5,7 @@ from .view import View
 from .color import Color
 from machine import Pin
 from machine import unique_id
+from machine import reset
 from umqtt.robust import MQTTClient
 import network
 import time
@@ -37,5 +38,5 @@ def start(updater):
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
     do_connect(view, config)
-    app = App(id, config, view, broker, now, updater)
+    app = App(id, config, view, broker, now, updater, reset)
     app.main(10)

@@ -69,7 +69,7 @@ class Lamp():
     def start(self, updater):
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id)    
-        app = App(self.id, config, view, broker, now, updater)
+        app = App(self.id, config, view, broker, now, updater, reset_fn)
         app.main(1)
 
 class Updater():
@@ -78,7 +78,10 @@ class Updater():
     
     def check_for_update_to_install_during_next_reboot(self):
         print("updating")
-        
+
+
+def reset_fn():
+    print("reboot")
 
     
 def now():

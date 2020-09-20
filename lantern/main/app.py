@@ -6,7 +6,7 @@ from .color import Color
 from .renderer import Renderer
 
 class App():
-    def __init__(self,id, config, view, broker, now, updater):
+    def __init__(self,id, config, view, broker, now, updater, reset_fn):
         self.id = id
         self.config = config
         self.view = view
@@ -18,29 +18,33 @@ class App():
         self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
+        self.reset_fn = reset_fn
     
+
+    def update_animation(self, message):
+        current_time = self.now()
+        data = json.loads(message)
+        color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
+        animation_length = data['time']
+        animation_start_time = current_time + data['delay']
+
+        if 'easing' in data:
+            easing = data['easing']
+        else:
+            easing = "ElasticEaseOut"
+
+        self.renderer.update(color, animation_start_time, animation_length, current_time, easing) 
+        self.last_instruction_time = current_time
 
 
     def subscription_callback(self, topic, message):
         try:
             if "color" in topic:
-                current_time = self.now()
-                data = json.loads(message)
-                color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
-                animation_length = data['time']
-                animation_start_time = current_time + data['delay']
-                print(data)
-                if 'easing' in data:
-                    easing = data['easing']
-                else:
-                    easing = "ElasticEaseOut"
-
-                self.renderer.update(color, animation_start_time, animation_length, current_time, easing) 
-                self.last_instruction_time = current_time
+                self.update_animation(message)
             else:
-                print("updating")
+                print("Config Update")
                 self.updater.check_for_update_to_install_during_next_reboot()
-                print("reboot")
+                self.reset_fn()
         except Exception as inst:
             print("Error in subscription callback", inst)
 

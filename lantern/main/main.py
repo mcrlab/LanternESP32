@@ -9,7 +9,7 @@ from machine import reset
 from umqtt.robust import MQTTClient
 import network
 import time
-from ota_updater import OTAUpdater
+from .ota_updater import OTAUpdater
 
 def now():
     return time.ticks_ms()

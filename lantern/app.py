@@ -40,6 +40,7 @@ class App():
     def subscription_callback(self, topic, message):
         try:
             if "color" in topic:
+                print("color update")
                 self.update_animation(message)
             else:
                 print("Config Update")
@@ -49,6 +50,7 @@ class App():
             print("Error in subscription callback", inst)
 
     def ping(self, current_time):
+        print("ping")
         update = json.dumps({
             "id" : self.id,
             "current_color" : self.renderer.get_current_color().as_object(),
@@ -60,6 +62,7 @@ class App():
 
     def main(self, retries):
         try:
+            print("Starting app")
             self.broker.connect()
             self.ping(self.now())
             self.broker.subscribe("color/"+self.id)

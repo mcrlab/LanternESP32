@@ -55,7 +55,7 @@ class View():
         self.number_of_pixels = number_of_pixels
 
     def render(self, color_buffer, current_time):
-        return
+        #return
         print(chr(27) + "[2J")
         
         for i in range(0, len(color_buffer)):

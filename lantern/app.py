@@ -33,7 +33,12 @@ class App():
         else:
             easing = "ElasticEaseOut"
 
-        self.renderer.update(color, animation_start_time, animation_length, current_time, easing) 
+        if 'method' in data:
+            method = data['method']
+        else:
+            method = "fill"
+
+        self.renderer.update(color, animation_start_time, animation_length, current_time, easing, method) 
         self.last_instruction_time = current_time
 
 
@@ -55,7 +60,8 @@ class App():
             "id" : self.id,
             "current_color" : self.renderer.get_current_color().as_object(),
             "completion" : self.renderer.get_completion(current_time),
-            "easing" : self.renderer.easing
+            "easing" : self.renderer.easing,
+            "method": self.renderer.method
             })
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
@@ -72,9 +78,10 @@ class App():
                 current_time = self.now()
                 
                 if(((current_time - self.last_render_time) > self.config['RENDER_INTERVAL'])):
-                    color_buffer = self.renderer.buffer_to_render(current_time)
-                    self.view.render(color_buffer, current_time)
-                    self.last_render_time = current_time
+                    if(self.renderer.should_draw(current_time)):
+                        color_buffer = self.renderer.buffer_to_render(current_time)
+                        self.view.render(color_buffer, current_time)
+                        self.last_render_time = current_time
 
                 if((current_time - self.last_ping_time) > self.config['PING_INTERVAL']):
                     self.ping(current_time)

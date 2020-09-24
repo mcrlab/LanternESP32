@@ -15,13 +15,15 @@ class Renderer():
         self.current_color = BLACK
         self.color_buffer = [BLACK] * number_of_pixels
         self.easing = "ElasticEaseOut"
+        self.method = "fill"
 
 
 
-    def update(self, target_color, animation_start_time, animation_length, current_time, easing):
+    def update(self, target_color, animation_start_time, animation_length, current_time, easing, method="fill"):
         self.animation = Animation(animation_start_time, animation_length)
         self.palette.update(self.current_color, target_color)
         self.easing = easing
+        self.method = method
     
     def select_easing_function(self):
         if self.easing in easings:
@@ -31,6 +33,9 @@ class Renderer():
 
     def get_current_color(self):
         return self.current_color
+
+    def should_draw(self, now):
+        return self.animation.is_complete(now)
 
     def get_completion(self, now):
         return self.animation.get_completion(now)
@@ -76,8 +81,9 @@ class Renderer():
         completion = self.animation.get_completion(now)
         easing_function = self.select_easing_function()
         position = easing_function(completion)
-
-        self.slide(completion, position)
-
+        if(self.method == "slide"):
+            self.slide(completion, position)
+        else:
+            self.fill(completion, position)
         return self.color_buffer
         

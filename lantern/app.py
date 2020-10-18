@@ -78,10 +78,10 @@ class App():
                 current_time = self.now()
                 
                 if(((current_time - self.last_render_time) > self.config['RENDER_INTERVAL'])):
-                    if(self.renderer.should_draw(current_time)):
-                        color_buffer = self.renderer.buffer_to_render(current_time)
-                        self.view.render(color_buffer, current_time)
-                        self.last_render_time = current_time
+                    #if(self.renderer.should_draw(current_time)):
+                    color_buffer = self.renderer.buffer_to_render(current_time)
+                    self.view.render(color_buffer, current_time)
+                    self.last_render_time = current_time
 
                 if((current_time - self.last_ping_time) > self.config['PING_INTERVAL']):
                     self.ping(current_time)

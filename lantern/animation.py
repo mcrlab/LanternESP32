@@ -19,4 +19,4 @@ class Animation():
             return elapsed_time / self.length
         
     def is_animating(self, now):
-        return (now > self.start_time) and now < (self.start_time + self.length)
+        return (now >= self.start_time) and now <= (self.start_time + self.length)

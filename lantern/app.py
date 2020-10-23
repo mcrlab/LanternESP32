@@ -63,6 +63,7 @@ class App():
             "easing" : self.renderer.easing,
             "method": self.renderer.method
             })
+        print(update)
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
 

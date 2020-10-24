@@ -33,7 +33,7 @@ def start(updater):
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  
 
-    broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+    broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], id, id)
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
     do_connect(view, config)

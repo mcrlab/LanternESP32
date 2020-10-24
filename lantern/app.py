@@ -19,6 +19,7 @@ class App():
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
         self.reset_fn = reset_fn
+        self.version = ""
     
 
     def update_animation(self, message):
@@ -61,7 +62,8 @@ class App():
             "current_color" : self.renderer.get_current_color().as_object(),
             "completion" : self.renderer.get_completion(current_time),
             "easing" : self.renderer.easing,
-            "method": self.renderer.method
+            "method": self.renderer.method,
+            "version": self.version
             })
         print(update)
         self.broker.publish("connect", update)
@@ -70,6 +72,9 @@ class App():
     def main(self, retries):
         try:
             print("Starting app")
+            f = open("lantern/.version")
+            self.version = f.read()
+            f.close()
             self.broker.connect()
             self.ping(self.now())
             self.broker.subscribe("color/"+self.id)

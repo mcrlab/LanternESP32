@@ -1,6 +1,7 @@
 __pycache__/
 .pytest_cache/
 .env
+.local.env
 .vscode/
 venv/
 .DS_Store

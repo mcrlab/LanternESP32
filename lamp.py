@@ -3,6 +3,8 @@ import time
 import json
 from lantern.app import App
 import os
+import argparse
+
 config = {
     "mqtt_server" : os.environ.get('MQTT_HOST'),
     "mqtt_port" : int(os.environ.get('MQTT_PORT')),
@@ -83,4 +85,7 @@ def reset_fn():
 def now():
     return int(round(time.time() * 1000))
 
-Lamp("james").start(Updater())
+parser = argparse.ArgumentParser()
+parser.add_argument("name", nargs='?', default="james")
+args = parser.parse_args()
+Lamp(args.name).start(Updater())

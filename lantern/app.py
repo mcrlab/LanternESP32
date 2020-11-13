@@ -22,9 +22,9 @@ class App():
         self.version = ""
     
 
-    def update_animation(self, message):
+    def update_animation(self, data):
         current_time = self.now()
-        data = json.loads(message)
+
         color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
         animation_length = data['time']
         animation_start_time = current_time + data['delay']
@@ -47,22 +47,23 @@ class App():
         try:
             if "color" in topic:
                 print("color update")
-                self.update_animation(message)
-            else:
+                data = json.loads(message)
+                self.update_animation(data)
+            elif "update" in topic:
                 print("Config Update")
+                self.broker.disconnect()
                 self.updater.check_for_update_to_install_during_next_reboot()
+                print("checked")
                 self.reset_fn()
+            else:
+                print("unknown command")
         except Exception as inst:
             print("Error in subscription callback", inst)
 
     def ping(self, current_time):
-        print("ping")
         update = json.dumps({
             "id" : self.id,
             "current_color" : self.renderer.get_current_color().as_object(),
-            "completion" : self.renderer.get_completion(current_time),
-            "easing" : self.renderer.easing,
-            "method": self.renderer.method,
             "version": self.version
             })
         print(update)
@@ -72,14 +73,12 @@ class App():
     def main(self, retries):
         try:
             print("Starting app")
-            f = open("lantern/.version")
-            self.version = f.read()
-            f.close()
             self.broker.connect()
             self.ping(self.now())
             self.broker.subscribe("color/"+self.id)
-            self.broker.subscribe("config/"+self.id)
+            self.broker.subscribe("update/"+self.id)
             self.last_render_time = self.now()
+            self.view.render_color(Color(0,0,0))  
             while True:
                 current_time = self.now()
                 

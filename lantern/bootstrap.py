@@ -29,6 +29,7 @@ def do_connect(view, config):
     view.render_color(Color(0,255,0))    
     time.sleep(1.0)
 
+
 def start(updater):
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  

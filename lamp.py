@@ -52,7 +52,9 @@ class Broker():
 class View():
     def __init__(self, number_of_pixels = 5):
         self.number_of_pixels = number_of_pixels
-
+    def render_color(self, color):
+        print(color)
+        
     def render(self, color_buffer, current_time):
         print(chr(27) + "[2J")
         

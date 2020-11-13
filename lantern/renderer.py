@@ -19,7 +19,7 @@ class Renderer():
 
 
 
-    def update(self, target_color, animation_start_time, animation_length, current_time, easing, method="fill"):
+    def update(self, target_color, animation_start_time, animation_length, easing, method="fill"):
         self.animation = Animation(animation_start_time, animation_length)
         self.palette.update(self.current_color, target_color)
         self.easing = easing

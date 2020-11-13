@@ -20,6 +20,8 @@ class App():
         self.updater = updater
         self.reset_fn = reset_fn
         self.version = ""
+        self.paused = False
+        
     
 
     def update_animation(self, data):
@@ -39,12 +41,14 @@ class App():
         else:
             method = "fill"
 
-        self.renderer.update(color, animation_start_time, animation_length, current_time, easing, method) 
+        self.renderer.update(color, animation_start_time, animation_length, easing, method) 
         self.last_instruction_time = current_time
 
 
     def subscription_callback(self, topic, message):
         try:
+            self.paused = False
+            self.last_update = self.now()
             if "color" in topic:
                 print("color update")
                 data = json.loads(message)
@@ -79,14 +83,20 @@ class App():
             self.broker.subscribe("update/"+self.id)
             self.last_render_time = self.now()
             self.view.render_color(Color(0,0,0))  
+            self.last_update = self.now()
+
             while True:
                 current_time = self.now()
-                
-                if(((current_time - self.last_render_time) > self.config['RENDER_INTERVAL'])):
-                    if(self.renderer.should_draw(current_time)):
-                        color_buffer = self.renderer.buffer_to_render(current_time)
-                        self.view.render(color_buffer, current_time)
-                        self.last_render_time = current_time
+                if ((self.last_update + ((60 * 1000) * 5) < current_time) and not self.paused):
+                    self.paused = True
+                    self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut", "fill")
+                    self.last_update = current_time
+                else:
+                    if(((current_time - self.last_render_time) > self.config['RENDER_INTERVAL'])):
+                        if(self.renderer.should_draw(current_time)):
+                            color_buffer = self.renderer.buffer_to_render(current_time)
+                            self.view.render(color_buffer, current_time)
+                            self.last_render_time = current_time
 
                 if((current_time - self.last_ping_time) > self.config['PING_INTERVAL']):
                     self.ping(current_time)

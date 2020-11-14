@@ -80,7 +80,16 @@ class App():
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
 
+    def set_version(self):
+        try:
+            f = open("lantern/.version", "r")
+            self.version = f.read()
+            f.close()
+        except OSError:
+            self.version = "development"
+
     def main(self, retries):
+        self.set_version()
         try:
             print("Starting app")
             self.broker.connect()

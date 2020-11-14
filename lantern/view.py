@@ -1,5 +1,5 @@
 from neopixel import NeoPixel
-from color import Color
+from .color import Color
 
 class View():
     def __init__(self, pin, number_of_pixels):

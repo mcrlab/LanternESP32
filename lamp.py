@@ -13,6 +13,7 @@ config = {
     "NUMBER_OF_PIXELS" : 20,
     "RENDER_INTERVAL" : 50,
     "PING_INTERVAL" : 10000,
+    "SLEEP_INTERVAL": 300000  
 }
 
 class Broker():

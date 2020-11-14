@@ -76,6 +76,7 @@ class App():
         update = json.dumps({
             "id" : self.id,
             "current_color" : self.renderer.get_current_color().as_object(),
+            "pixels": self.config['NUMBER_OF_PIXELS'],
             "version": self.version
             })
         print(update)

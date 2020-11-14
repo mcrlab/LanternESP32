@@ -54,10 +54,16 @@ class App():
                 data = json.loads(message)
                 self.update_animation(data)
             elif "update" in topic:
-                print("Config Update")
+                print("Firmware Update")
                 self.broker.disconnect()
                 self.updater.check_for_update_to_install_during_next_reboot()
                 print("checked")
+                self.reset_fn()
+            elif "config" in topic:
+                print("config update")
+                f = open("lantern/config.json", "w")
+                f.write(message)
+                f.close()
                 self.reset_fn()
             else:
                 print("unknown command")
@@ -81,6 +87,7 @@ class App():
             self.ping(self.now())
             self.broker.subscribe("color/"+self.id)
             self.broker.subscribe("update/"+self.id)
+            self.broker.subscribe("config/"+self.id)
             self.last_render_time = self.now()
             self.view.render_color(Color(0,0,0))  
             self.last_update = self.now()

@@ -1,5 +1,4 @@
 from binascii import hexlify
-from .config import config
 from .app import App
 from .view import View
 from .color import Color
@@ -9,6 +8,7 @@ from machine import reset
 from umqtt.robust import MQTTClient
 import network
 import time
+import json
 
 def now():
     return time.ticks_ms()
@@ -33,6 +33,10 @@ def do_connect(view, config):
 def start(updater):
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  
+
+    f = open("lantern/config.json", "r")
+    config = json.loads(f.read())
+    f.close()
 
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], id, id)
     broker.DEBUG = True

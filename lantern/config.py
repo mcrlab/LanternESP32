@@ -8,4 +8,5 @@ config = {
     "NUMBER_OF_PIXELS" : 60,
     "RENDER_INTERVAL" : 50.0,
     "PING_INTERVAL" : 5000.0,
+    "SLEEP_INTERVAL" : 300000  
 }

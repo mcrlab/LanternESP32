@@ -105,7 +105,7 @@ class App():
 
             while True:
                 current_time = self.now()
-                if ((self.last_update + ((60 * 1000) * 5) < current_time) and not self.paused):
+                if ((self.last_update + self.config['SLEEP_INTERVAL'] < current_time) and not self.paused):
                     self.paused = True
                     self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut", "fill")
                     self.last_update = current_time

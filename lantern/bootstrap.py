@@ -38,7 +38,7 @@ def start(updater):
     config = json.loads(f.read())
     f.close()
 
-    broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], id, id)
+    broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
     do_connect(view, config)

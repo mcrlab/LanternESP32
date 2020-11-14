@@ -21,6 +21,8 @@ class App():
         self.reset_fn = reset_fn
         self.version = ""
         self.paused = False
+
+        print(self.config)
         
     
 
@@ -120,6 +122,7 @@ class App():
                 self.broker.check_msg()
                 
             self.broker.disconnect()
+
         except TypeError as e:
             print('error', e)
         except OSError as error:

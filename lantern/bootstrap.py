@@ -42,5 +42,5 @@ def start(updater):
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
     do_connect(view, config)
-    app = App(id, config, view, broker, now, updater, reset)
+    app = App(id, config, view, broker, now, updater, reset, provider)
     app.main(10)

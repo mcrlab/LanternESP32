@@ -5,4 +5,4 @@ __pycache__/
 .vscode/
 venv/
 .DS_Store
-src/config.py
+local_config.json

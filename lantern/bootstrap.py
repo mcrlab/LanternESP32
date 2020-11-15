@@ -2,6 +2,7 @@ from binascii import hexlify
 from .app import App
 from .view import View
 from .color import Color
+from .config_provider import ConfigProvider
 from machine import Pin
 from machine import unique_id
 from machine import reset
@@ -34,9 +35,8 @@ def start(updater):
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  
 
-    f = open("lantern/config.json", "r")
-    config = json.loads(f.read())
-    f.close()
+    provider = ConfigProvider()
+    config = provider.get_config()
 
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True

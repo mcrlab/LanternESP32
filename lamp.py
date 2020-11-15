@@ -2,23 +2,15 @@ import paho.mqtt.client as mqtt
 import time
 import json
 from lantern.app import App
+from lantern.config_provider import ConfigProvider
 import os
 import argparse
 
-config = {
-    "mqtt_server" : os.environ.get('MQTT_HOST'),
-    "mqtt_port" : int(os.environ.get('MQTT_PORT')),
-    "mqtt_user" : os.environ.get('MQTT_USERNAME'),
-    "mqtt_password" : os.environ.get('MQTT_PASSWORD'),
-    "NUMBER_OF_PIXELS" : 20,
-    "RENDER_INTERVAL" : 50,
-    "PING_INTERVAL" : 10000,
-    "SLEEP_INTERVAL": 300000  
-}
-
 class Broker():
-    def __init__(self, id, username, password):
+    def __init__(self, id, server, port, username, password):
         self.client = mqtt.Client(id)
+        self.server = server
+        self.port = port
         self.client.username_pw_set(username, password)
         
     def on_message(self, user, topic, message):
@@ -35,7 +27,7 @@ class Broker():
         self.client.on_message=self.on_message
     
     def connect(self):
-        self.client.connect(config['mqtt_server'], config['mqtt_port'])
+        self.client.connect(self.server, self.port)
         self.client.loop_start()
 
     
@@ -68,9 +60,13 @@ class Lamp():
         self.id = id
 
     def start(self, updater):
+        
+        provider = ConfigProvider()
+        config = provider.get_config()
+        print(config)
         view = View(config['NUMBER_OF_PIXELS'])
-        broker = Broker(self.id, config['mqtt_user'], config['mqtt_password'])    
-        app = App(self.id, config, view, broker, now, updater, reset_fn)
+        broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
+        app = App(self.id, config, view, broker, now, updater, reset_fn, provider)
         app.main(1)
 
 class Updater():

@@ -6,7 +6,7 @@ from .color import Color
 from .renderer import Renderer
 
 class App():
-    def __init__(self,id, config, view, broker, now, updater, reset_fn):
+    def __init__(self,id, config, view, broker, now, updater, reset_fn, provider):
         self.id = id
         self.config = config
         self.view = view
@@ -19,12 +19,9 @@ class App():
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
         self.reset_fn = reset_fn
+        self.provider = provider
         self.version = ""
-        self.paused = False
-
-        print(self.config)
-        
-    
+        self.paused = False    
 
     def update_animation(self, data):
         current_time = self.now()
@@ -63,9 +60,7 @@ class App():
                 self.reset_fn()
             elif "config" in topic:
                 print("config update")
-                f = open("lantern/config.json", "w")
-                f.write(message)
-                f.close()
+                self.provider.update_config(message)
                 self.reset_fn()
             else:
                 print("unknown command")

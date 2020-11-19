@@ -43,31 +43,31 @@ find the serial port the device is connected to. It will mount on a mac somethin
 set this as an environment file either in a .env or run:
 
 ```
-export SERIAL_PORT=/dev/cu.wc******
+export AMPY_PORT=/dev/cu.wc******
 ```
 
 
 ### Erase the Flash
 ```
-esptool.py -p $SERIAL_PORT erase_flash
+esptool.py -p $AMPY_PORT erase_flash
 ```
 ### Flash Micropython Firmware
 
 
 **Chip esp8266**
 ```
-esptool.py -p $SERIAL_PORT --baud 115200 write_flash --flash_size=detect 0 firmware.bin
+esptool.py -p $AMPY_PORT --baud 115200 write_flash --flash_size=detect 0 firmware.bin
 ```
 
 **Chip esp32**
 ```
-esptool.py --chip esp32 --port $SERIAL_PORT --baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
+esptool.py --chip esp32 --port $AMPY_PORT --baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
 ```
 
 ## Connect to the device
 
 ```
-picocom $SERIAL_PORT -b 115200
+picocom $AMPY_PORT -b 115200
 ```
 
 command a x to exit
@@ -80,11 +80,9 @@ We're going to use ampy, a python library to upload our source files to the devi
 
 
 ```
-ampy -p $SERIAL_PORT put src/lantern lantern
+ampy put src/lantern lantern
 
-ampy -p $SERIAL_PORT put src/config.py config.py
-
-ampy -p $SERIAL_PORT put src/main.py main.py
+ampy put src/main.py main.py
 ```
 
 

@@ -66,7 +66,7 @@ class Lamp():
         print(config)
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
-        app = App(self.id, config, view, broker, now, updater, reset_fn, provider)
+        app = App(self.id, view, broker, now, updater, reset_fn, provider)
         app.main(1)
 
 class Updater():

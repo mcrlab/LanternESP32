@@ -6,9 +6,8 @@ from .color import Color
 from .renderer import Renderer
 
 class App():
-    def __init__(self,id, config, view, broker, now, updater, reset_fn, provider):
+    def __init__(self,id, view, broker, now, updater, reset_fn, provider):
         self.id = id
-        self.config = config
         self.view = view
         self.broker = broker
         self.now = now
@@ -21,7 +20,8 @@ class App():
         self.reset_fn = reset_fn
         self.provider = provider
         self.version = ""
-        self.paused = False    
+        self.paused = False   
+        self.config = provider.get_config() 
 
     def update_animation(self, data):
         current_time = self.now()

@@ -14,7 +14,7 @@ import json
 def now():
     return time.ticks_ms()
 
-def do_connect(view, config):
+def connect_to_wifi(view, config):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     view.render_color(Color(255,0,0))
@@ -41,6 +41,6 @@ def start(updater):
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
-    do_connect(view, config)
-    app = App(id, config, view, broker, now, updater, reset, provider)
+    connect_to_wifi(view, config)
+    app = App(id, view, broker, now, updater, reset, provider)
     app.main(10)

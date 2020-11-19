@@ -77,12 +77,30 @@ class Renderer():
             self.color_buffer = [self.palette.target_color] * self.number_of_pixels    
             self.palette.start_color = self.palette.target_color    
 
+    def reverse(self, completion, position):
+        self.current_color = self.palette.target_color
+        
+        if(completion == 0):
+            self.color_buffer = [self.palette.start_color] * self.number_of_pixels
+        elif(completion > 0 and completion < 1):
+            self.color_buffer = [self.palette.start_color] * self.number_of_pixels
+                    
+            for i in range((int(round(self.number_of_pixels * position)))):
+                if i < self.number_of_pixels:
+                    n = self.number_of_pixels - 1 - i
+                    self.color_buffer[n] = self.palette.target_color
+        else:
+            self.color_buffer = [self.palette.target_color] * self.number_of_pixels    
+            self.palette.start_color = self.palette.target_color    
+
     def buffer_to_render(self, now):
         completion = self.animation.get_completion(now)
         easing_function = self.select_easing_function()
         position = easing_function(completion)
         if(self.method == "slide"):
-            self.slide(completion, position)
+            self.reverse(completion, position)
+        elif(self.method == "reverse"):
+            self.reverse(completion, position)
         else:
             self.fill(completion, position)
         return self.color_buffer

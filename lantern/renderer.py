@@ -98,7 +98,7 @@ class Renderer():
         easing_function = self.select_easing_function()
         position = easing_function(completion)
         if(self.method == "slide"):
-            self.reverse(completion, position)
+            self.slide(completion, position)
         elif(self.method == "reverse"):
             self.reverse(completion, position)
         else:

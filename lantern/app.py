@@ -132,5 +132,7 @@ class App():
                 self.view.render(Color(0,0,255), self.now())
                 time.sleep(5)
                 self.view.render(Color(0,0,0), self.now())
+        finally:
+            self.reset_fn()
             
             

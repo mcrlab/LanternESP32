@@ -1,1 +1,1 @@
-{"ssid":"PLUSNET-HHQJC9","password":"f6db6dd64c","mqtt_server":"hairdresser-01.cloudmqtt.com","mqtt_port":15539,"mqtt_user":"linnegar","mqtt_password":"linnegar","NUMBER_OF_PIXELS":70,"RENDER_INTERVAL":50,"PING_INTERVAL":5000,"SLEEP_INTERVAL":60000}
+{"ssid":"ssid","password":"password","mqtt_server":"mqtt","mqtt_port":1883,"mqtt_user":"lantern","mqtt_password":"ilovelamp","NUMBER_OF_PIXELS":70,"RENDER_INTERVAL":50,"PING_INTERVAL":5000,"SLEEP_INTERVAL":60000}

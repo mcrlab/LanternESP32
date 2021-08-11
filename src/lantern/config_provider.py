@@ -1,12 +1,12 @@
 import json
-
+import os
 class ConfigProvider():
     def __init__(self):
         self.config = self.get_default_config()
         pass
     
     def get_default_config(self):
-        f = open("lantern/config.json", "r")
+        f = open( os.path.join(os.getcwd(), os.path.dirname(__file__),"config.json") , "r")
         config = json.loads(f.read())
         f.close()
         return config

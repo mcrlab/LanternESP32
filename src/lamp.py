@@ -1,9 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
-import json
 from lantern.app import App
 from lantern.config_provider import ConfigProvider
-import os
 import argparse
 
 class Broker():
@@ -63,7 +61,6 @@ class Lamp():
         
         provider = ConfigProvider()
         config = provider.get_config()
-        print(config)
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
         app = App(self.id, view, broker, now, updater, reset_fn, provider)

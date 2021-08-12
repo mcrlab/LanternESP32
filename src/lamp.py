@@ -85,7 +85,7 @@ def now():
 
 
 def create_lamp(name, id):
-    Lamp(name+str(i)).start(Updater(), ConfigProvider())
+    Lamp(name+"_"+str(i)).start(Updater(), ConfigProvider())
 
 
 if __name__ == "__main__":

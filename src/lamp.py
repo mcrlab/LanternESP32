@@ -2,8 +2,9 @@ import paho.mqtt.client as mqtt
 import time
 from lantern.app import App
 from admin.config_provider import ConfigProvider
-
+import os
 import argparse
+import threading
 
 class Broker():
     def __init__(self, id, server, port, username, password):
@@ -45,6 +46,7 @@ class Broker():
 class View():
     def __init__(self, number_of_pixels = 5):
         self.number_of_pixels = number_of_pixels
+
     def render_color(self, color):
         print(color)
         
@@ -81,8 +83,17 @@ def reset_fn():
 def now():
     return int(round(time.time() * 1000))
 
-parser = argparse.ArgumentParser()
-parser.add_argument("name", nargs='?', default="james")
-args = parser.parse_args()
-print("start")
-Lamp(args.name).start(Updater(), ConfigProvider())
+
+def create_lamp(name, id):
+    Lamp(name+str(i)).start(Updater(), ConfigProvider())
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("name", nargs='?', default="james")
+    arguments = parser.parse_args()
+    number_of_lamps = int(os.getenv("NUMBER_OF_LAMPS", '1'))
+
+    for i in range(0, number_of_lamps):
+        x = threading.Thread(target=create_lamp, args=(arguments.name, i))
+        x.start()    

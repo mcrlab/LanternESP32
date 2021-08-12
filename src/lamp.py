@@ -1,7 +1,8 @@
 import paho.mqtt.client as mqtt
 import time
 from lantern.app import App
-from lantern.config_provider import ConfigProvider
+from admin.config_provider import ConfigProvider
+
 import argparse
 
 class Broker():
@@ -25,6 +26,7 @@ class Broker():
         self.client.on_message=self.on_message
     
     def connect(self):
+        print("connecting to: ", self.server)
         self.client.connect(self.server, self.port)
         self.client.loop_start()
 
@@ -57,10 +59,8 @@ class Lamp():
     def __init__(self, id):
         self.id = id
 
-    def start(self, updater):
-        
-        provider = ConfigProvider()
-        config = provider.get_config()
+    def start(self, updater, provider):
+        config = provider.get_config()        
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
         app = App(self.id, view, broker, now, updater, reset_fn, provider)
@@ -84,4 +84,5 @@ def now():
 parser = argparse.ArgumentParser()
 parser.add_argument("name", nargs='?', default="james")
 args = parser.parse_args()
-Lamp(args.name).start(Updater())
+print("start")
+Lamp(args.name).start(Updater(), ConfigProvider())

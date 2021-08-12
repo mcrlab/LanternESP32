@@ -2,7 +2,6 @@ from binascii import hexlify
 from .app import App
 from .view import View
 from .color import Color
-from .config_provider import ConfigProvider
 from machine import Pin
 from machine import unique_id
 from machine import reset
@@ -31,13 +30,10 @@ def connect_to_wifi(view, config):
     time.sleep(1.0)
 
 
-def start(updater):
+def start(updater, provider):
+    config = provider.get_config()
     id = hexlify(unique_id()).decode()
     pin = Pin(5, Pin.OUT)  
-
-    provider = ConfigProvider()
-    config = provider.get_config()
-
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])

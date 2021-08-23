@@ -84,7 +84,7 @@ class App():
             self.version = f.read()
             f.close()
         except OSError:
-            self.version = "development"
+            self.version = "dev"
 
     def main(self, retries):
         self.set_version()

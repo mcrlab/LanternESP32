@@ -61,7 +61,7 @@ class Lamp():
         config = provider.get_config()        
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
-        app = App(self.id, view, broker, now, updater, reset_fn, provider)
+        app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider)
         app.main(1)
 
 class Updater():
@@ -74,7 +74,11 @@ class Updater():
 
 def reset_fn():
     print("reboot")
-
+    
+def sleep_fn(seconds):
+    print("sleeping for ")
+    print(seconds)
+    print(" seconds")
     
 def now():
     return int(round(time.time() * 1000))

@@ -6,7 +6,7 @@ from .color import Color
 from .renderer import Renderer
 
 class App():
-    def __init__(self,id, view, broker, now, updater, reset_fn, provider):
+    def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider):
         self.id = id
         self.view = view
         self.broker = broker
@@ -18,6 +18,7 @@ class App():
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
         self.reset_fn = reset_fn
+        self.sleep_fn = sleep_fn
         self.provider = provider
         self.version = ""
         self.paused = False   
@@ -63,10 +64,11 @@ class App():
                 self.provider.update_config(message)
                 self.reset_fn()
             elif "sleep" in topic:
-                print("sleeping for ")
+                self.view.render_color(Color(0,0,0))  
                 data = json.loads(message)
-                print(data["seconds"])
+                self.sleep_fn(data["seconds"])
             elif "restart" in topic:
+                self.view.render_color(Color(0,0,0))  
                 print("restarting")
                 self.reset_fn()
             else:

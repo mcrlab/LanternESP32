@@ -5,6 +5,7 @@ from .color import Color
 from machine import Pin
 from machine import unique_id
 from machine import reset
+from machine import deepsleep
 from umqtt.robust import MQTTClient
 import network
 import time
@@ -29,6 +30,8 @@ def connect_to_wifi(view, config):
     view.render_color(Color(0,255,0))    
     time.sleep(1.0)
 
+def sleep(seconds):
+    deepsleep(seconds * 1000)
 
 def start(updater, provider):
     config = provider.get_config()
@@ -38,5 +41,5 @@ def start(updater, provider):
     broker.DEBUG = True
     view = View(pin, config['NUMBER_OF_PIXELS'])
     connect_to_wifi(view, config)
-    app = App(id, view, broker, now, updater, reset, provider)
+    app = App(id, view, broker, now, updater, reset, sleep, provider)
     app.main(10)

@@ -1,5 +1,5 @@
-from admin.ota_updater import OTAUpdater
-from admin.config_provider import ConfigProvider
+from lantern.ota_updater import OTAUpdater
+from lantern.config_provider import ConfigProvider
 from lantern.bootstrap import start
 
 

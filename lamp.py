@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
 from lantern.app import App
-from admin.config_provider import ConfigProvider
+from lantern.config_provider import ConfigProvider
 import os
 import argparse
 import threading
@@ -48,14 +48,10 @@ class View():
         self.number_of_pixels = number_of_pixels
 
     def render_color(self, color):
-        print(color)
+        print(color.as_hex())
         
     def render(self, color_buffer, current_time):
-        print(chr(27) + "[2J")
-        
-        for i in range(0, len(color_buffer)):
-            print(color_buffer[i].as_hex())
-        
+        pass        
 
 class Lamp():
     def __init__(self, id):

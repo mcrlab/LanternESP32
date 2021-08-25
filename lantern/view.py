@@ -15,6 +15,7 @@ class View():
         self.last_render_time = current_time
 
     def render_color(self, color):
+        print(color.to_hex())
         for i in range(self.number_of_pixels):
             self.np[i] = color.as_instruction()
         self.np.write()

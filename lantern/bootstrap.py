@@ -31,6 +31,7 @@ def connect_to_wifi(view, config):
     time.sleep(1.0)
 
 def sleep(seconds):
+    print("sleeping")
     deepsleep(seconds * 1000)
 
 def start(updater, provider):

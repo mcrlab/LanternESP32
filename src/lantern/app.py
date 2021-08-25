@@ -62,6 +62,13 @@ class App():
                 print("config update")
                 self.provider.update_config(message)
                 self.reset_fn()
+            elif "sleep" in topic:
+                print("sleeping for ")
+                data = json.loads(message)
+                print(data["seconds"])
+            elif "restart" in topic:
+                print("restarting")
+                self.reset_fn()
             else:
                 print("unknown command")
         except Exception as inst:
@@ -74,7 +81,6 @@ class App():
             "pixels": self.config['NUMBER_OF_PIXELS'],
             "version": self.version
             })
-        print(update)
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
 
@@ -95,6 +101,8 @@ class App():
             self.broker.subscribe("color/"+self.id)
             self.broker.subscribe("update/"+self.id)
             self.broker.subscribe("config/"+self.id)
+            self.broker.subscribe("restart/"+self.id)
+            self.broker.subscribe("sleep/"+self.id)
             self.last_render_time = self.now()
             self.view.render_color(Color(0,0,0))  
             self.last_update = self.now()

@@ -61,7 +61,7 @@ esptool.py -p $AMPY_PORT --baud 115200 write_flash --flash_size=detect 0 firmwar
 
 **Chip esp32**
 ```
-esptool.py --chip esp32 --port $AMPY_PORT --baud 460800 write_flash -z 0x1000 firmware/esp32-20190818-v1.11-219-gaf5c998f3.bin  
+esptool.py --chip esp32 --port $AMPY_PORT --baud 460800 write_flash -z 0x1000 firmware/esp32-20210623-v1.16.bin 
 ```
 
 ## Connect to the device

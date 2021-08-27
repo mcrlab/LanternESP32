@@ -64,8 +64,9 @@ class Lamp():
     def start(self, updater, provider):
         config = provider.get_config()        
         view = View(config['NUMBER_OF_PIXELS'])
-        broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
-        app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider)
+        broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+
+        app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN)
         app.main()
 
 class Updater():
@@ -74,6 +75,25 @@ class Updater():
     
     def check_for_update_to_install_during_next_reboot(self):
         print("updating")
+
+class WLAN():
+    STA_IF = 0
+
+    def __init__(self, setting):    
+        pass
+
+    def isconnected(self):
+        return True
+    
+    def connect(self, ssid, password):
+        print(ssid, password)
+    
+    def active(self, status):
+        pass
+
+    def ifconfig(self):
+        return "ip config"
+
 
 
 def reset_fn():
@@ -97,7 +117,7 @@ if __name__ == "__main__":
     parser.add_argument("name", nargs='?', default="james")
     arguments = parser.parse_args()
     number_of_lamps = int(os.getenv("NUMBER_OF_LAMPS", '1'))
-
+    
     for i in range(0, number_of_lamps):
         x = threading.Thread(target=create_lamp, args=(arguments.name, i))
         x.start()    

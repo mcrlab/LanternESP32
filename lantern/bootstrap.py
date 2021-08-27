@@ -8,7 +8,6 @@ from machine import reset
 from machine import deepsleep
 from umqtt.robust import MQTTClient
 from network import WLAN
-from network import STA_IF
 
 import time
 
@@ -16,18 +15,6 @@ import time
 def now():
     return time.ticks_ms()
 
-def connect_to_wifi(view, config):
-    wlan = WLAN(STA_IF)
-    wlan.active(True)
-    time.sleep(1.0)
-    if not wlan.isconnected():
-        print('connecting to network...')
-        wlan.connect(config['ssid'], config['password'])
-        while not wlan.isconnected():    
-            time.sleep(1.0)
-            pass
-    print('network config:', wlan.ifconfig()) 
-    time.sleep(1.0)
 
 def sleep(seconds):
     print("sleeping")
@@ -35,11 +22,14 @@ def sleep(seconds):
 
 def start(updater, provider):
     config = provider.get_config()
+
     id = hexlify(unique_id()).decode()
-    pin = Pin(5, Pin.OUT)  
+
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True
-    view = View(pin, config['NUMBER_OF_PIXELS'])
-    connect_to_wifi(view, config)
-    app = App(id, view, broker, now, updater, reset, sleep, provider)
+
+    view = View(Pin(5, Pin.OUT) , config['NUMBER_OF_PIXELS'])
+
+    app = App(id, view, broker, now, updater, reset, sleep, provider, WLAN)
+
     app.main()

@@ -6,7 +6,7 @@ from .color import Color
 from .renderer import Renderer
 from .colors import default_colors
 class App():
-    def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider):
+    def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN):
         self.id = id
         self.view = view
         self.broker = broker
@@ -23,6 +23,7 @@ class App():
         self.version = ""
         self.paused = False   
         self.config = provider.get_config() 
+        self.WLAN = WLAN
 
     def update_animation(self, data):
         current_time = self.now()
@@ -103,6 +104,7 @@ class App():
         # possibly try and reconnect
         print("starting backup sequence")
         color_int = 0
+        self.last_update = self.now()
         while True:
             current_time = self.now()
             if (self.last_update + 5000 < current_time):
@@ -142,6 +144,19 @@ class App():
         try:
             print("Starting app")
             
+            wlan = self.WLAN(self.WLAN.STA_IF)
+            wlan.active(True)
+            time.sleep(1.0)
+            if not wlan.isconnected():
+                print('connecting to network...')
+                wlan.connect(self.config['ssid'], self.config['password'])
+                while not wlan.isconnected():    
+                    time.sleep(1.0)
+                    pass
+
+            print('network config:', wlan.ifconfig()) 
+            time.sleep(1.0)
+
             self.broker.connect()
             self.subscribe()
             self.ping(self.now())
@@ -170,7 +185,6 @@ class App():
             print('error', e)
         except OSError as error:
             print("Connection error", error)
-            self.backup()
         finally:
             self.reset_fn()
             

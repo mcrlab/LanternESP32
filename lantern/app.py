@@ -5,6 +5,8 @@ from .palette import Palette
 from .color import Color
 from .renderer import Renderer
 from .colors import default_colors
+import network
+
 class App():
     def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN):
         self.id = id
@@ -96,12 +98,6 @@ class App():
             self.version = "dev"
 
     def backup(self):
-        # failsafe animation
-        # should cycle through different colours
-        # select randomly
-        # change over 2 secones
-        # every random number of seconds > 5 < 15
-        # possibly try and reconnect
         print("starting backup sequence")
         color_int = 0
         self.last_update = self.now()
@@ -114,7 +110,6 @@ class App():
                     "time": 2000,
                     "delay": 10
                 }
-                #print("test")
                 self.update_animation(data)
                 self.last_update = current_time
                 color_int = color_int + 1
@@ -144,7 +139,7 @@ class App():
         try:
             print("Starting app")
             
-            wlan = self.WLAN(self.WLAN.STA_IF)
+            wlan = self.WLAN(0)
             wlan.active(True)
             time.sleep(1.0)
             if not wlan.isconnected():
@@ -186,6 +181,5 @@ class App():
         except OSError as error:
             print("Connection error", error)
         finally:
-            self.reset_fn()
-            
-            
+            print("Error Caught")
+            self.backup()

@@ -57,6 +57,36 @@ class View():
             print(color_buffer[i].as_hex())
         pass        
 
+
+class Updater():
+    def __init__(self):
+        pass
+    
+    def check_for_update_to_install_during_next_reboot(self):
+        print("updating")
+
+class WLAN():
+    STA_IF = 0
+
+    def __init__(self, setting):  
+        self.connection_count = 0  
+        pass
+
+    def isconnected(self):
+        self.connection_count = self.connection_count + 1
+        return self.connection_count > 5
+    
+    def connect(self, ssid, password):
+        print(ssid, password)
+    
+    def active(self, status):
+        pass
+
+    def ifconfig(self):
+        return "ip config"
+
+
+
 class Lamp():
     def __init__(self, id):
         self.id = id
@@ -69,30 +99,6 @@ class Lamp():
         app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN)
         app.main()
 
-class Updater():
-    def __init__(self):
-        pass
-    
-    def check_for_update_to_install_during_next_reboot(self):
-        print("updating")
-
-class WLAN():
-    STA_IF = 0
-
-    def __init__(self, setting):    
-        pass
-
-    def isconnected(self):
-        return True
-    
-    def connect(self, ssid, password):
-        print(ssid, password)
-    
-    def active(self, status):
-        pass
-
-    def ifconfig(self):
-        return "ip config"
 
 
 

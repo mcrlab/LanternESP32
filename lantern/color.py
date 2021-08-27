@@ -12,8 +12,7 @@ class Color():
         self.r = test(int(r))
         self.g = test(int(g))
         self.b = test(int(b))
-        
-
+    
     def normalise(self, maximum_brightness):
         total = self.r + self.g + self.b
         if (total > maximum_brightness):

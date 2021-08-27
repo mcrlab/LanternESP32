@@ -51,6 +51,10 @@ class View():
         print(color.as_hex())
         
     def render(self, color_buffer, current_time):
+        print(chr(27) + "[2J")
+        
+        for i in range(0, len(color_buffer)):
+            print(color_buffer[i].as_hex())
         pass        
 
 class Lamp():
@@ -62,7 +66,7 @@ class Lamp():
         view = View(config['NUMBER_OF_PIXELS'])
         broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])    
         app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider)
-        app.main(1)
+        app.main()
 
 class Updater():
     def __init__(self):

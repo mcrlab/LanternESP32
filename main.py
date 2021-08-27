@@ -8,7 +8,6 @@ def download_and_install_update_if_available(updater):
   
 def boot():
     provider = ConfigProvider()
-    config = provider.get_config()
     updater = OTAUpdater('https://github.com/mcrlab/LanternIoT', main_dir='lantern')
     download_and_install_update_if_available(updater)
     start(updater, provider)

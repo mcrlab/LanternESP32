@@ -4,7 +4,7 @@ import json
 from .palette import Palette
 from .color import Color
 from .renderer import Renderer
-
+from .colors import default_colors
 class App():
     def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider):
         self.id = id
@@ -94,17 +94,58 @@ class App():
         except OSError:
             self.version = "dev"
 
-    def main(self, retries):
+    def backup(self):
+        # failsafe animation
+        # should cycle through different colours
+        # select randomly
+        # change over 2 secones
+        # every random number of seconds > 5 < 15
+        # possibly try and reconnect
+        print("starting backup sequence")
+        color_int = 0
+        while True:
+            current_time = self.now()
+            if (self.last_update + 5000 < current_time):
+
+                data = {
+                    "color": default_colors[color_int],
+                    "time": 2000,
+                    "delay": 10
+                }
+                #print("test")
+                self.update_animation(data)
+                self.last_update = current_time
+                color_int = color_int + 1
+                if(color_int >= len(default_colors)):
+                    color_int = 0
+
+            self.check_and_render(current_time)
+
+    def subscribe(self):
+        print("subscribing")
+        self.broker.subscribe("color/"+self.id)
+        self.broker.subscribe("update/"+self.id)
+        self.broker.subscribe("config/"+self.id)
+        self.broker.subscribe("restart/"+self.id)
+        self.broker.subscribe("sleep/"+self.id)
+
+    def check_and_render(self, current_time):
+        if(((current_time - self.last_render_time) > self.config['RENDER_INTERVAL'])):
+            if(self.renderer.should_draw(current_time)):
+                color_buffer = self.renderer.buffer_to_render(current_time)
+                self.view.render(color_buffer, current_time)
+                self.last_render_time = current_time
+    
+    
+    def main(self):
         self.set_version()
         try:
             print("Starting app")
+            
             self.broker.connect()
+            self.subscribe()
             self.ping(self.now())
-            self.broker.subscribe("color/"+self.id)
-            self.broker.subscribe("update/"+self.id)
-            self.broker.subscribe("config/"+self.id)
-            self.broker.subscribe("restart/"+self.id)
-            self.broker.subscribe("sleep/"+self.id)
+            
             self.last_render_time = self.now()
             self.view.render_color(Color(0,0,0))  
             self.last_update = self.now()
@@ -116,11 +157,7 @@ class App():
                     self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut", "fill")
                     self.last_update = current_time
                 else:
-                    if(((current_time - self.last_render_time) > self.config['RENDER_INTERVAL'])):
-                        if(self.renderer.should_draw(current_time)):
-                            color_buffer = self.renderer.buffer_to_render(current_time)
-                            self.view.render(color_buffer, current_time)
-                            self.last_render_time = current_time
+                    self.check_and_render(current_time)
 
                 if((current_time - self.last_ping_time) > self.config['PING_INTERVAL']):
                     self.ping(current_time)
@@ -133,15 +170,7 @@ class App():
             print('error', e)
         except OSError as error:
             print("Connection error", error)
-            time.sleep(5)
-            if(retries > 0):
-                retries = retries - 1
-                self.main(retries)
-            else:
-                print("Failed too many times")
-                self.view.render(Color(0,0,255), self.now())
-                time.sleep(5)
-                self.view.render(Color(0,0,0), self.now())
+            self.backup()
         finally:
             self.reset_fn()
             

@@ -15,7 +15,6 @@ class ConfigProvider():
         try:
             f = open("local_config.json", "r")
             data = json.loads(f.read())
-            print(data)
             f.close()    
             for key in data.keys():
                 self.config[key] = data[key]

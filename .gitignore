@@ -5,5 +5,5 @@ __pycache__/
 .vscode/
 venv/
 .DS_Store
-local_config.json
+network.config.json
 *.pyc

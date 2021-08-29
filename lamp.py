@@ -92,9 +92,10 @@ class Lamp():
         self.id = id
 
     def start(self, updater, provider):
-        config = provider.get_config()        
+        config = provider.get_runtime_config() 
+        network_config = provider.get_network_config()       
         view = View(config['NUMBER_OF_PIXELS'])
-        broker = Broker(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+        broker = Broker(self.id, network_config['mqtt_server'], network_config['mqtt_port'], network_config['mqtt_user'], network_config['mqtt_password'])
 
         app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN)
         app.main()

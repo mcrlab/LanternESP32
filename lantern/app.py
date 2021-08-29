@@ -5,7 +5,6 @@ from .palette import Palette
 from .color import Color
 from .renderer import Renderer
 from .colors import default_colors
-import network
 
 class App():
     def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN):
@@ -24,7 +23,7 @@ class App():
         self.provider = provider
         self.version = ""
         self.paused = False   
-        self.config = provider.get_config() 
+        self.config = provider.get_runtime_config() 
         self.WLAN = WLAN
 
     def update_animation(self, data):
@@ -64,7 +63,7 @@ class App():
                 self.reset_fn()
             elif "config" in topic:
                 print("config update")
-                self.provider.update_config(message)
+                self.provider.update_runtime_config(message)
                 self.reset_fn()
             elif "sleep" in topic:
                 self.view.render_color(Color(0,0,0))  
@@ -138,13 +137,13 @@ class App():
         self.set_version()
         try:
             print("Starting app")
-            
+            config = self.provider.get_network_config()
             wlan = self.WLAN(0)
             wlan.active(True)
             time.sleep(1.0)
             if not wlan.isconnected():
                 print('connecting to network...')
-                wlan.connect(self.config['ssid'], self.config['password'])
+                wlan.connect(config['ssid'], config['password'])
                 while not wlan.isconnected():    
                     time.sleep(1.0)
                     pass

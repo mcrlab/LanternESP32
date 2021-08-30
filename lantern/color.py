@@ -12,7 +12,13 @@ class Color():
         self.r = test(int(r))
         self.g = test(int(g))
         self.b = test(int(b))
-    
+
+    def hex(self, hex):
+        self.r = int(hex[0:2], 16)
+        self.g = int(hex[2:4], 16)
+        self.b = int(hex[4:6], 16)
+
+
     def normalise(self, maximum_brightness):
         total = self.r + self.g + self.b
         if (total > maximum_brightness):

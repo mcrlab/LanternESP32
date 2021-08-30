@@ -1,10 +1,8 @@
-import math
 import time
 import json
-from .palette import Palette
 from .color import Color
 from .renderer import Renderer
-from .colors import default_colors
+from .colors import hex_colors
 
 class App():
     def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN):
@@ -105,22 +103,24 @@ class App():
         while self.now() < self.backup_started + config['BACKUP_INTERVAL']:
             current_time = self.now()
             if (self.last_update + 5000 < current_time):
-
+                hex = hex_colors[color_int]
+                color = Color(0,0,0)
+                color.hex(hex)
                 data = {
-                    "color": default_colors[color_int],
+                    "color": color.as_object(),
                     "time": 2000,
                     "delay": 10
                 }
                 self.update_animation(data)
                 self.last_update = current_time
                 color_int = color_int + 1
-                if(color_int >= len(default_colors)):
+                if(color_int >= len(hex_colors)):
                     color_int = 0
 
             self.check_and_render(current_time)
         print("Restarting")
         self.reset_fn()
-        
+
     def subscribe(self):
         print("subscribing")
         self.broker.subscribe("color/"+self.id)

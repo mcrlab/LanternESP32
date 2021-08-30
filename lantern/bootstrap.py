@@ -21,7 +21,7 @@ def sleep(seconds):
     deepsleep(seconds * 1000)
 
 def start(updater, provider):
-    config = provider.get_network_config()
+    config = provider.network_config
 
     id = hexlify(unique_id()).decode()
 

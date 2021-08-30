@@ -100,7 +100,9 @@ class App():
         print("starting backup sequence")
         color_int = 0
         self.last_update = self.now()
-        while True:
+        self.backup_started = self.now()
+        config = self.provider.runtime_config
+        while self.now() < self.backup_started + config['BACKUP_INTERVAL']:
             current_time = self.now()
             if (self.last_update + 5000 < current_time):
 
@@ -116,7 +118,9 @@ class App():
                     color_int = 0
 
             self.check_and_render(current_time)
-
+        print("Restarting")
+        self.reset_fn()
+        
     def subscribe(self):
         print("subscribing")
         self.broker.subscribe("color/"+self.id)

@@ -22,13 +22,13 @@ def sleep(seconds):
 
 def start(updater, provider):
     config = provider.network_config
-
+    runtime = provider.runtime_config
     id = hexlify(unique_id()).decode()
 
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
     broker.DEBUG = True
 
-    view = View(Pin(5, Pin.OUT) , config['NUMBER_OF_PIXELS'])
+    view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])
 
     app = App(id, view, broker, now, updater, reset, sleep, provider, WLAN)
 

@@ -141,7 +141,7 @@ class App():
         self.set_version()
         try:
             print("Starting app")
-            config = self.provider.network.config
+            config = self.provider.config['network']
             wlan = self.WLAN(0)
             wlan.active(True)
             time.sleep(1.0)
@@ -183,6 +183,8 @@ class App():
             print('error', e)
         except OSError as error:
             print("Connection error", error)
+        except Exception as e:
+            print(e)
         finally:
             print("Error Caught")
             self.backup()

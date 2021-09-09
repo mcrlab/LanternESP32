@@ -93,7 +93,6 @@ class Lamp():
 
     def start(self, updater, provider):
         config = provider.config['runtime'] 
-        print( provider.config['runtime']['NUMBER_OF_PIXELS'])
 
         network_config = provider.config['network']     
         view = View(config['NUMBER_OF_PIXELS'])

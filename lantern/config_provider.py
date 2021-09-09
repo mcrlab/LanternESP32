@@ -5,7 +5,7 @@ class ConfigProvider():
         
         self.config = {
             "network": self.load_network_config(),
-            "runtime": self.load_runtime_config
+            "runtime": self.load_runtime_config()
         }
         
         pass

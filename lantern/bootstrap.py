@@ -21,8 +21,8 @@ def sleep(seconds):
     deepsleep(seconds * 1000)
 
 def start(updater, provider):
-    config = provider.network_config
-    runtime = provider.runtime_config
+    config = provider.config['network']
+    runtime = provider.config['runtime']
     id = hexlify(unique_id()).decode()
 
     broker = MQTTClient(id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])

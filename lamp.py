@@ -1,131 +1,22 @@
-import paho.mqtt.client as mqtt
-import time
-from lantern.app import App
-from lantern.config_provider import ConfigProvider
 import os
-import argparse
 import threading
 
-class Broker():
-    def __init__(self, id, server, port, username, password):
-        self.client = mqtt.Client(id)
-        self.server = server
-        self.port = port
-        self.client.username_pw_set(username, password)
-        
-    def on_message(self, user, topic, message):
-        try:
-            topic = str(message.topic)
-            message = str(message.payload.decode("utf-8"))
-            self.callback(topic, message)
+try:
+    from lantern.ota_updater import OTAUpdater
+except (ModuleNotFoundError, ImportError) as e:
+    from mocks import OTAUpdater
 
-        except Exception as inst:
-            print("fail", inst)
+from lantern.bootstrap import boot
 
-    def set_callback(self, callback):
-        self.callback=callback
-        self.client.on_message=self.on_message
-    
-    def connect(self):
-        print("connecting to: ", self.server)
-        self.client.connect(self.server, self.port)
-        self.client.loop_start()
+def run():
+    updater = OTAUpdater('https://github.com/mcrlab/LanternIoT', main_dir='lantern')
+    boot(updater)
 
-    
-    def subscribe(self, topic):
-        print("subscribing to: ", topic)
-        self.client.subscribe(topic)
-        self.client.loop_start()
-    
-    def publish(self, topic, data):
-        self.client.publish(topic, data)
-    
-    def check_msg(self):
-        pass
-
-class View():
-    def __init__(self, number_of_pixels = 5):
-        self.number_of_pixels = number_of_pixels
-
-    def render_color(self, color):
-        print(color.as_hex())
-        
-    def render(self, color_buffer, current_time):
-        print(chr(27) + "[2J")
-        
-        for i in range(0, len(color_buffer)):
-            print(color_buffer[i].as_hex())
-        pass        
-
-
-class Updater():
-    def __init__(self):
-        pass
-    
-    def check_for_update_to_install_during_next_reboot(self):
-        print("updating")
-
-class WLAN():
-    STA_IF = 0
-
-    def __init__(self, setting):  
-        self.connection_count = 0  
-        pass
-
-    def isconnected(self):
-        self.connection_count = self.connection_count + 1
-        return self.connection_count > 5
-    
-    def connect(self, ssid, password):
-        print(ssid, password)
-    
-    def active(self, status):
-        pass
-
-    def ifconfig(self):
-        return "ip config"
-
-
-
-class Lamp():
-    def __init__(self, id):
-        self.id = id
-
-    def start(self, updater, provider):
-        config = provider.config['runtime'] 
-
-        network_config = provider.config['network']     
-        view = View(config['NUMBER_OF_PIXELS'])
-        broker = Broker(self.id, network_config['mqtt_server'], network_config['mqtt_port'], network_config['mqtt_user'], network_config['mqtt_password'])
-
-        app = App(self.id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN)
-        app.main()
-
-
-
-
-def reset_fn():
-    print("reboot")
-    
-def sleep_fn(seconds):
-    print("sleeping for ")
-    print(seconds)
-    print(" seconds")
-    
-def now():
-    return int(round(time.time() * 1000))
-
-
-def create_lamp(name, id):
-    Lamp(name+"_"+str(i)).start(Updater(), ConfigProvider())
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("name", nargs='?', default="james")
-    arguments = parser.parse_args()
     number_of_lamps = int(os.getenv("NUMBER_OF_LAMPS", '1'))
     
     for i in range(0, number_of_lamps):
-        x = threading.Thread(target=create_lamp, args=(arguments.name, i))
+        x = threading.Thread(target=run, args=())
         x.start()    

@@ -49,6 +49,7 @@ class OTAUpdater():
         pass
     
     def download_and_install_update_if_available(self, ssid, password):
+        print("downloading and installing if available")
         pass
 
     def check_for_update_to_install_during_next_reboot(self):
@@ -59,7 +60,10 @@ def ticks_ms():
     return int(round(time.time() * 1000))
 
 def unique_id():
-    return "mock"
+    import string
+    import random
+    letters = string.ascii_uppercase
+    return ''.join(random.choice(letters) for i in range(8)) 
 
 class Pin:
     OUT = 1

@@ -3,24 +3,39 @@ import json
 from .color import Color
 from .renderer import Renderer
 from .colors import hex_colors
+from .view import View
 
 try:
+    from machine import unique_id
+    from umqtt.robust import MQTTClient
+    from machine import Pin
     from machine import reset
     from machine import deepsleep
     from network import WLAN
     from time import ticks_ms
 except (ModuleNotFoundError, ImportError) as e:
+    from mocks import unique_id
+    from mocks import hexlify
+    from mocks import Broker as MQTTClient    
+    from mocks import Pin    
     from mocks import WLAN
     from mocks import reset
     from mocks import deepsleep
     from mocks import ticks_ms
 
 class App():
-    def __init__(self,id, view, broker, updater, provider):
-        self.id = id
-        self.view = view
-        self.broker = broker
-        self.renderer = Renderer(view.number_of_pixels)
+    def __init__(self, updater, provider):
+        runtime = provider.config['runtime']
+        config = provider.config['network']
+
+        self.id = hexlify(unique_id()).decode()
+        self.broker = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+        self.broker.DEBUG = True
+
+
+        self.view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])
+    
+        self.renderer = Renderer(runtime['NUMBER_OF_PIXELS'])
         self.last_instruction_time = 0
         self.last_ping_time = 0 
         self.last_render_time = 0

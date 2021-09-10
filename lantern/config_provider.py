@@ -31,7 +31,7 @@ class ConfigProvider():
         return data
 
     def update_runtime_config(self, new_config_str):
-        current_config = self.runtime_config
+        current_config = self.config['runtime']
         
         new_config = json.loads(new_config_str)
         current_config.update(new_config)
@@ -40,7 +40,7 @@ class ConfigProvider():
         f = open("runtime.config.json", "w")
         f.write(new_config_str)
         f.close()
-        self.runtime_config = current_config
+        self.config["runtime"] = current_config
 
     def update_network_config(self, new_config_str):
         current_config = self.config.network

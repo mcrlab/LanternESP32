@@ -4,27 +4,35 @@ from .color import Color
 from .renderer import Renderer
 from .colors import hex_colors
 
+try:
+    from machine import reset
+    from machine import deepsleep
+    from network import WLAN
+    from time import ticks_ms
+except (ModuleNotFoundError, ImportError) as e:
+    from mocks import WLAN
+    from mocks import reset
+    from mocks import deepsleep
+    from mocks import ticks_ms
+
 class App():
-    def __init__(self,id, view, broker, now, updater, reset_fn, sleep_fn, provider, WLAN):
+    def __init__(self,id, view, broker, updater, provider):
         self.id = id
         self.view = view
         self.broker = broker
-        self.now = now
         self.renderer = Renderer(view.number_of_pixels)
         self.last_instruction_time = 0
         self.last_ping_time = 0 
         self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
-        self.reset_fn = reset_fn
-        self.sleep_fn = sleep_fn
         self.provider = provider
         self.version = ""
         self.paused = False   
-        self.WLAN = WLAN
+
 
     def update_animation(self, data):
-        current_time = self.now()
+        current_time = ticks_ms()
 
         color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
         animation_length = data['time']
@@ -47,7 +55,7 @@ class App():
     def subscription_callback(self, topic, message):
         try:
             self.paused = False
-            self.last_update = self.now()
+            self.last_update = ticks_ms()
             if "color" in topic:
                 print("color update")
                 data = json.loads(message)
@@ -57,18 +65,18 @@ class App():
                 self.broker.disconnect()
                 self.updater.check_for_update_to_install_during_next_reboot()
                 print("checked")
-                self.reset_fn()
+                reset()
             elif "config" in topic:
                 print("config update")
                 self.provider.update_runtime_config(message)
             elif "sleep" in topic:
                 self.view.render_color(Color(0,0,0))  
                 data = json.loads(message)
-                self.sleep_fn(data["seconds"])
+                deepsleep(data["seconds"])
             elif "restart" in topic:
                 self.view.render_color(Color(0,0,0))  
                 print("restarting")
-                self.reset_fn()
+                reset()
             else:
                 print("unknown command")
         except Exception as inst:
@@ -82,7 +90,7 @@ class App():
             "version": self.version,
             "config": self.provider.config['runtime']
             })
-        print(update);
+        print(update)
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
 
@@ -97,11 +105,11 @@ class App():
     def backup(self):
         print("starting backup sequence")
         color_int = 0
-        self.last_update = self.now()
-        self.backup_started = self.now()
+        self.last_update = ticks_ms()
+        self.backup_started = ticks_ms()
         config = self.provider.config['runtime']
-        while self.now() < self.backup_started + config['BACKUP_INTERVAL']:
-            current_time = self.now()
+        while ticks_ms() < self.backup_started + config['BACKUP_INTERVAL']:
+            current_time = ticks_ms()
             if (self.last_update + 5000 < current_time):
                 hex = hex_colors[color_int]
                 color = Color(0,0,0)
@@ -119,7 +127,7 @@ class App():
 
             self.check_and_render(current_time)
         print("Restarting")
-        self.reset_fn()
+        reset()
 
     def subscribe(self):
         print("subscribing")
@@ -142,7 +150,7 @@ class App():
         try:
             print("Starting app")
             config = self.provider.config['network']
-            wlan = self.WLAN(0)
+            wlan = WLAN(0)
             wlan.active(True)
             time.sleep(1.0)
             if not wlan.isconnected():
@@ -157,14 +165,14 @@ class App():
 
             self.broker.connect()
             self.subscribe()
-            self.ping(self.now())
+            self.ping(ticks_ms())
             
-            self.last_render_time = self.now()
+            self.last_render_time = ticks_ms()
             self.view.render_color(Color(0,0,0))  
-            self.last_update = self.now()
+            self.last_update = ticks_ms()
 
             while True:
-                current_time = self.now()
+                current_time = ticks_ms()
                 if ((self.last_update + self.provider.config['runtime']['SLEEP_INTERVAL'] < current_time) and not self.paused):
                     self.paused = True
                     self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut", "fill")

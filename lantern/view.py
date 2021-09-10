@@ -1,4 +1,8 @@
-from neopixel import NeoPixel
+try:
+    from neopixel import NeoPixel
+except (ModuleNotFoundError, ImportError) as e:
+    from mocks import NeoPixel
+    
 from .color import Color
 
 class View():

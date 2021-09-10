@@ -3,11 +3,12 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     from mocks import OTAUpdater
 
-from lantern.bootstrap import boot
+from lantern.app import App
 
 def run():
     updater = OTAUpdater('https://github.com/mcrlab/LanternIoT', main_dir='lantern')
-    boot(updater)
+    app = App(updater)
+    app.main()
 
 if __name__ == "__main__":
     run()

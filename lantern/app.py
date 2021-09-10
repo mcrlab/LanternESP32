@@ -4,6 +4,7 @@ from .color import Color
 from .renderer import Renderer
 from .colors import hex_colors
 from .view import View
+from .config_provider import ConfigProvider
 
 try:
     from machine import unique_id
@@ -24,14 +25,18 @@ except (ModuleNotFoundError, ImportError) as e:
     from mocks import ticks_ms
 
 class App():
-    def __init__(self, updater, provider):
-        runtime = provider.config['runtime']
-        config = provider.config['network']
+    def __init__(self, updater):
+
+        self.provider = ConfigProvider()
+        self.updater = updater
+
+        runtime = self.provider.config['runtime']
+        config = self.provider.config['network']
+
 
         self.id = hexlify(unique_id()).decode()
         self.broker = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
         self.broker.DEBUG = True
-
 
         self.view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])
     
@@ -41,7 +46,6 @@ class App():
         self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
-        self.provider = provider
         self.version = ""
         self.paused = False   
 
@@ -72,7 +76,7 @@ class App():
             self.paused = False
             self.last_update = ticks_ms()
             if "color" in topic:
-                print("color update")
+                print("Color update")
                 data = json.loads(message)
                 self.update_animation(data)
             elif "update" in topic:
@@ -101,11 +105,9 @@ class App():
         update = json.dumps({
             "id" : self.id,
             "current_color" : self.renderer.get_current_color().as_object(),
-            "pixels": self.provider.config['runtime']['NUMBER_OF_PIXELS'],
             "version": self.version,
             "config": self.provider.config['runtime']
             })
-        print(update)
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
 
@@ -145,7 +147,7 @@ class App():
         reset()
 
     def subscribe(self):
-        print("subscribing")
+        print("Subscribing")
         self.broker.subscribe("color/"+self.id)
         self.broker.subscribe("update/"+self.id)
         self.broker.subscribe("config/"+self.id)
@@ -161,6 +163,8 @@ class App():
     
     
     def main(self):
+        config = self.provider.config['network']
+        self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
         self.set_version()
         try:
             print("Starting app")
@@ -200,14 +204,10 @@ class App():
 
                 self.broker.check_msg()
                 
-            self.broker.disconnect()
 
-        except TypeError as e:
-            print('error', e)
-        except OSError as error:
-            print("Connection error", error)
-        except Exception as e:
-            print(e)
+
+        except (TypeError, OSError, Exception) as e:
+            print('Error', e)
         finally:
             print("Error Caught")
             self.backup()

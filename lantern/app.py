@@ -72,7 +72,7 @@ class App():
             elif "sleep" in topic:
                 self.view.render_color(Color(0,0,0))  
                 data = json.loads(message)
-                deepsleep(data["seconds"])
+                deepsleep(data["seconds"] * 1000)
             elif "restart" in topic:
                 self.view.render_color(Color(0,0,0))  
                 print("restarting")

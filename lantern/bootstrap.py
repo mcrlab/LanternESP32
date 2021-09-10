@@ -6,17 +6,11 @@ from .view import View
 try:
     from machine import Pin
     from machine import unique_id
-    from machine import reset
-    from machine import deepsleep
     from umqtt.robust import MQTTClient
-    from network import WLAN
     from time import ticks_ms
 except (ModuleNotFoundError, ImportError) as e:
-    from mocks import WLAN
     from mocks import Pin
     from mocks import unique_id
-    from mocks import reset
-    from mocks import deepsleep
     from mocks import hexlify
     from mocks import Broker as MQTTClient
     from mocks import ticks_ms
@@ -26,10 +20,6 @@ from .config_provider import ConfigProvider
 def now():
     return ticks_ms()
 
-
-def sleep(seconds):
-    print("sleeping")
-    deepsleep(seconds * 1000)
      
 def boot(updater):
     provider = ConfigProvider()

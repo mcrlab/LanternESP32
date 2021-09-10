@@ -5,7 +5,7 @@ from .renderer import Renderer
 from .colors import hex_colors
 from .view import View
 from .config_provider import ConfigProvider
-
+from binascii import hexlify
 try:
     from machine import unique_id
     from umqtt.robust import MQTTClient
@@ -16,7 +16,6 @@ try:
     from time import ticks_ms
 except (ModuleNotFoundError, ImportError) as e:
     from mocks import unique_id
-    from mocks import hexlify
     from mocks import Broker as MQTTClient    
     from mocks import Pin    
     from mocks import WLAN

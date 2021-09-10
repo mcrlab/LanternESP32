@@ -60,10 +60,8 @@ def ticks_ms():
     return int(round(time.time() * 1000))
 
 def unique_id():
-    import string
-    import random
-    letters = string.ascii_uppercase
-    return ''.join(random.choice(letters) for i in range(8)) 
+    from random import randbytes
+    return randbytes(6)
 
 class Pin:
     OUT = 1

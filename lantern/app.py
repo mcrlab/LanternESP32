@@ -8,12 +8,13 @@ from .config_provider import ConfigProvider
 from binascii import hexlify
 try:
     from machine import unique_id
-    from umqtt.robust import MQTTClient
     from machine import Pin
     from machine import reset
     from machine import deepsleep
     from network import WLAN
     from time import ticks_ms
+    from .mqtt import MQTTClient
+    from umqtt.simple import MQTTException
 except (ModuleNotFoundError, ImportError) as e:
     from mocks import unique_id
     from mocks import Broker as MQTTClient    
@@ -22,6 +23,7 @@ except (ModuleNotFoundError, ImportError) as e:
     from mocks import reset
     from mocks import deepsleep
     from mocks import ticks_ms
+    from mocks import MQTTException
 
 class App():
     def __init__(self, updater):
@@ -80,19 +82,21 @@ class App():
                 self.update_animation(data)
             elif "update" in topic:
                 print("Firmware Update")
+                self.view.off()  
                 self.broker.disconnect()
                 self.updater.check_for_update_to_install_during_next_reboot()
                 print("checked")
                 reset()
             elif "config" in topic:
                 print("config update")
+                print(message)
                 self.provider.update_runtime_config(message)
             elif "sleep" in topic:
-                self.view.render_color(Color(0,0,0))  
+                self.view.off()  
                 data = json.loads(message)
                 deepsleep(data["seconds"] * 1000)
             elif "restart" in topic:
-                self.view.render_color(Color(0,0,0))  
+                self.view.off() 
                 print("restarting")
                 reset()
             else:
@@ -143,6 +147,7 @@ class App():
 
             self.check_and_render(current_time)
         print("Restarting")
+        self.view.off()
         reset()
 
     def subscribe(self):
@@ -186,7 +191,7 @@ class App():
             self.ping(ticks_ms())
             
             self.last_render_time = ticks_ms()
-            self.view.render_color(Color(0,0,0))  
+            self.view.off()
             self.last_update = ticks_ms()
 
             while True:
@@ -205,7 +210,7 @@ class App():
                 
 
 
-        except (TypeError, OSError, Exception) as e:
+        except (TypeError, OSError, Exception, MQTTException) as e:
             print('Error', e)
         finally:
             print("Error Caught")

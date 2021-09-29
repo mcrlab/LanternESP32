@@ -13,7 +13,7 @@ class Color():
         self.g = test(int(g))
         self.b = test(int(b))
 
-    def hex(self, hex):
+    def from_hex(self, hex):
         self.r = int(hex[0:2], 16)
         self.g = int(hex[2:4], 16)
         self.b = int(hex[4:6], 16)
@@ -37,4 +37,4 @@ class Color():
             "b": self.b
         }
     def as_hex(self):
-        return '#{:02x}{:02x}{:02x}'.format( self.r, self.g , self.b )
+        return '{:02x}{:02x}{:02x}'.format( self.r, self.g , self.b )

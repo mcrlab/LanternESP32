@@ -54,7 +54,8 @@ class App():
     def update_animation(self, data):
         current_time = ticks_ms()
 
-        color = Color(data['color']['r'],data['color']['g'],data['color']['b'])
+        color = Color(0,0,0)
+        color.from_hex(data['color'])
         animation_length = data['time']
         animation_start_time = current_time + data['delay']
 
@@ -107,7 +108,7 @@ class App():
     def ping(self, current_time):
         update = json.dumps({
             "id" : self.id,
-            "current_color" : self.renderer.get_current_color().as_object(),
+            "current_color" : self.renderer.get_current_color().as_hex(),
             "version": self.version,
             "config": self.provider.config['runtime']
             })

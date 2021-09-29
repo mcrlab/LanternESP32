@@ -101,23 +101,6 @@ def SineEaseOut(p):
 def SineEaseInOut(p):
     return 0.5 * (1 - cos(p * M_PI))
 
-# Modeled after shifted quadrant IV of unit circle
-def CircularEaseIn(p):
-    return 1 - sqrt(1 - (p * p))
-
-# Modeled after shifted quadrant II of unit circle
-def CircularEaseOut(p):
-    return sqrt((2 - p) * p)
-
-# Modeled after the piecewise circular function
-# y = (1/2)(1 - sqrt(1 - 4x^2))           ; [0, 0.5)
-# y = (1/2)(sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
-def CircularEaseInOut(p):
-    if(p < 0.5):
-        return 0.5 * (1 - sqrt(1 - 4 * (p * p)))
-    else:
-        return 0.5 * (sqrt(-((2 * p) - 3) * ((2 * p) - 1)) + 1)
-
 # Modeled after the exponential function y = 2^(10(x - 1))
 def ExponentialEaseIn(p):
     return p if (p == 0.0) else pow(2, 10 * (p - 1))
@@ -214,9 +197,6 @@ easings = {
     "SineEaseIn":SineEaseIn,
     "SineEaseOut":SineEaseOut,
     "SineEaseInOut":SineEaseInOut,
-    "CircularEaseIn":CircularEaseIn,
-    "CircularEaseOut":CircularEaseOut,
-    "CircularEaseInOut":CircularEaseInOut,
     "ExponentialEaseIn":ExponentialEaseIn,
     "ExponentialEaseOut":ExponentialEaseOut,
     "ExponentialEaseInOut":ExponentialEaseInOut,

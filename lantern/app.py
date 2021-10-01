@@ -193,7 +193,7 @@ class App():
 
             self.broker.connect()
             self.subscribe()
-            self.connect(ticks_ms())
+            self.connect()
             
             self.last_render_time = ticks_ms()
             self.view.off()

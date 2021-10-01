@@ -1,7 +1,6 @@
 from .palette import Palette
 from .animation import Animation
 from .color import Color
-import math
 from .easing import easings
 from .easing import ElasticEaseOut as default_easing
 

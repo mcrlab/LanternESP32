@@ -148,7 +148,7 @@ class App():
                 if(color_int >= len(hex_colors)):
                     color_int = 0
 
-            self.check_and_render(current_time)
+            self.check_and_render(current_time, config['RENDER_INTERVAL'])
         print("Restarting")
         self.view.off()
         reset()
@@ -199,20 +199,18 @@ class App():
 
             sleep_interval = self.provider.config['runtime']['SLEEP_INTERVAL']
             render_interval = self.provider.config['runtime']['RENDER_INTERVAL']
-
+      
             while True:
                 current_time = ticks_ms()
                 if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True
-                    self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut", "fill")
+                    self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut")
                     self.last_update = current_time
                 else:
                     self.check_and_render(current_time, render_interval)
 
                 self.broker.check_msg()
-                
-
-
+                    
         except (TypeError, OSError, Exception, MQTTException) as e:
             print('Error', e)
         finally:

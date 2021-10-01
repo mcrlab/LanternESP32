@@ -103,12 +103,20 @@ class App():
     def ping(self, current_time):
         update = json.dumps({
             "id" : self.id,
+            "current_color" : self.renderer.get_current_color().as_hex()
+            })
+        self.broker.publish("ping", update)
+        self.last_ping_time = current_time
+
+
+    def connect(self):
+        update = json.dumps({
+            "id" : self.id,
             "current_color" : self.renderer.get_current_color().as_hex(),
             "version": self.version,
             "config": self.provider.config['runtime']
             })
         self.broker.publish("connect", update)
-        self.last_ping_time = current_time
 
 
     def set_version(self):
@@ -185,7 +193,7 @@ class App():
 
             self.broker.connect()
             self.subscribe()
-            self.ping(ticks_ms())
+            self.connect(ticks_ms())
             
             self.last_render_time = ticks_ms()
             self.view.off()

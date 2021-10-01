@@ -75,6 +75,8 @@ class App():
             if "color" in topic:
                 print("Color update")
                 data = json.loads(message)
+                
+                self.ping(ticks_ms())
                 self.update_animation(data)
             elif "update" in topic:
                 print("Firmware Update")
@@ -211,9 +213,6 @@ class App():
                     self.last_update = current_time
                 else:
                     self.check_and_render(current_time, render_interval)
-
-                if((current_time - self.last_ping_time) >  ping_interval):
-                    self.ping(current_time)
 
                 self.broker.check_msg()
                 

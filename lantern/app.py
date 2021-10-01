@@ -64,12 +64,7 @@ class App():
         else:
             easing = "ElasticEaseOut"
 
-        if 'method' in data:
-            method = data['method']
-        else:
-            method = "fill"
-
-        self.renderer.update(color, animation_start_time, animation_length, easing, method) 
+        self.renderer.update(color, animation_start_time, animation_length, easing) 
         self.last_instruction_time = current_time
 
 
@@ -115,6 +110,7 @@ class App():
         self.broker.publish("connect", update)
         self.last_ping_time = current_time
 
+
     def set_version(self):
         try:
             f = open("lantern/.version", "r")
@@ -134,7 +130,7 @@ class App():
             if (self.last_update + 5000 < current_time):
                 hex = hex_colors[color_int]
                 color = Color(0,0,0)
-                color.hex(hex)
+                color.from_hex(hex)
                 data = {
                     "color": color.as_object(),
                     "time": 2000,
@@ -159,8 +155,8 @@ class App():
         self.broker.subscribe("restart/"+self.id)
         self.broker.subscribe("sleep/"+self.id)
 
-    def check_and_render(self, current_time):
-        if(((current_time - self.last_render_time) > self.provider.config['runtime']['RENDER_INTERVAL'])):
+    def check_and_render(self, current_time, render_interval):
+        if(((current_time - self.last_render_time) > render_interval)):
             if(self.renderer.should_draw(current_time)):
                 color_buffer = self.renderer.buffer_to_render(current_time)
                 self.view.render(color_buffer, current_time)
@@ -195,16 +191,20 @@ class App():
             self.view.off()
             self.last_update = ticks_ms()
 
+            sleep_interval = self.provider.config['runtime']['SLEEP_INTERVAL']
+            ping_interval = self.provider.config['runtime']['PING_INTERVAL']
+            render_interval = self.provider.config['runtime']['RENDER_INTERVAL']
+
             while True:
                 current_time = ticks_ms()
-                if ((self.last_update + self.provider.config['runtime']['SLEEP_INTERVAL'] < current_time) and not self.paused):
+                if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True
                     self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut", "fill")
                     self.last_update = current_time
                 else:
-                    self.check_and_render(current_time)
+                    self.check_and_render(current_time, render_interval)
 
-                if((current_time - self.last_ping_time) >  self.provider.config['runtime']['PING_INTERVAL']):
+                if((current_time - self.last_ping_time) >  ping_interval):
                     self.ping(current_time)
 
                 self.broker.check_msg()

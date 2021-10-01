@@ -1,5 +1,3 @@
-import math
-
 class Animation():
     def __init__(self, start_time, length):
         self.start_time = start_time

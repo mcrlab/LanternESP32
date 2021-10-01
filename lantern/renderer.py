@@ -10,7 +10,7 @@ BLACK = Color(0,0,0)
 class Renderer():
     def __init__(self, number_of_pixels,):
         self.number_of_pixels = number_of_pixels
-        self.palette = Palette()
+        self.palette = Palette(BLACK, BLACK)
         self.animation = Animation(0, 0)
         self.current_color = BLACK
         self.color_buffer = [BLACK] * number_of_pixels
@@ -28,7 +28,7 @@ class Renderer():
             return default_easing
 
     def get_current_color(self):
-        return self.current_color
+        return self.palette.target_color
 
     def should_draw(self, now):
         return self.animation.is_complete(now)

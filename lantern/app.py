@@ -43,7 +43,6 @@ class App():
     
         self.renderer = Renderer(runtime['NUMBER_OF_PIXELS'])
         self.last_instruction_time = 0
-        self.last_ping_time = 0 
         self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
         self.updater = updater
@@ -75,9 +74,8 @@ class App():
             if "color" in topic:
                 print("Color update")
                 data = json.loads(message)
-                
-                self.ping(ticks_ms())
                 self.update_animation(data)
+                self.ping()
             elif "update" in topic:
                 print("Firmware Update")
                 self.view.off()  
@@ -102,19 +100,17 @@ class App():
         except Exception as inst:
             print("Error in subscription callback", inst)
 
-    def ping(self, current_time):
+    def ping(self):
         update = json.dumps({
             "id" : self.id,
-            "current_color" : self.renderer.get_current_color().as_hex()
+            "color" : self.renderer.get_current_color().as_hex()
             })
         self.broker.publish("ping", update)
-        self.last_ping_time = current_time
-
 
     def connect(self):
         update = json.dumps({
             "id" : self.id,
-            "current_color" : self.renderer.get_current_color().as_hex(),
+            "color" : self.renderer.get_current_color().as_hex(),
             "version": self.version,
             "config": self.provider.config['runtime']
             })
@@ -202,7 +198,6 @@ class App():
             self.last_update = ticks_ms()
 
             sleep_interval = self.provider.config['runtime']['SLEEP_INTERVAL']
-            ping_interval = self.provider.config['runtime']['PING_INTERVAL']
             render_interval = self.provider.config['runtime']['RENDER_INTERVAL']
 
             while True:

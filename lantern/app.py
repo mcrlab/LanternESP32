@@ -138,7 +138,7 @@ class App():
                 color = Color(0,0,0)
                 color.from_hex(hex)
                 data = {
-                    "color": color.as_object(),
+                    "color": color.as_hex(),
                     "time": 2000,
                     "delay": 10
                 }
@@ -168,27 +168,30 @@ class App():
                 self.view.render(color_buffer, current_time)
                 self.last_render_time = current_time
     
-    
+    def connect_to_wifi(self, config):
+        wlan = WLAN(0)
+        wlan.active(True)
+        time.sleep(1.0)
+        if not wlan.isconnected():
+            print('connecting to network...')
+            wlan.connect(config['ssid'], config['password'])
+            while not wlan.isconnected():    
+                time.sleep(1.0)
+                pass
+
+        print('network config:', wlan.ifconfig()) 
+        time.sleep(1.0)
+
+
     def main(self):
-        config = self.provider.config['network']
-        self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
-        self.set_version()
+
         try:
-            print("Starting app")
             config = self.provider.config['network']
-            wlan = WLAN(0)
-            wlan.active(True)
-            time.sleep(1.0)
-            if not wlan.isconnected():
-                print('connecting to network...')
-                wlan.connect(config['ssid'], config['password'])
-                while not wlan.isconnected():    
-                    time.sleep(1.0)
-                    pass
-
-            print('network config:', wlan.ifconfig()) 
-            time.sleep(1.0)
-
+            self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
+            print("Starting app")
+        
+            self.set_version()
+            self.connect_to_wifi(config)
             self.broker.connect()
             self.subscribe()
             self.connect()

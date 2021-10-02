@@ -6,6 +6,13 @@ class TestClassColor:
         assert c.r == 255
         assert c.g == 128
         assert c.b == 0
+    
+    def test_from_hex(self):
+        c = color.Color(0, 0, 0)
+        c.from_hex("FF00FF")
+        assert c.r == 255
+        assert c.g == 0
+        assert c.b == 255
 
     def test_as_instruction(self):
         c = color.Color(255,128, 0)

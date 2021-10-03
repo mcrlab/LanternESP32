@@ -1,5 +1,3 @@
-from .color import Color
-
 class Palette():
     def __init__(self, start_color, target_color):
         self.start_color = start_color

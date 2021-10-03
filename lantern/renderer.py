@@ -30,10 +30,7 @@ class Renderer():
         return self.palette.target_color
 
     def should_draw(self, now):
-        return self.animation.is_complete(now)
-
-    def get_completion(self, now):
-        return self.animation.get_completion(now)
+        return not self.animation.is_complete(now)
 
     def color_to_render(self, position):
         r = self.palette.start_color.r + ((self.palette.target_color.r - self.palette.start_color.r) * position)

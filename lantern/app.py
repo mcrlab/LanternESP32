@@ -165,7 +165,7 @@ class App():
         if(((current_time - self.last_render_time) > render_interval)):
             if(self.renderer.should_draw(current_time)):
                 color_buffer = self.renderer.buffer_to_render(current_time)
-                self.view.render(color_buffer, current_time)
+                self.view.render(color_buffer)
                 self.last_render_time = current_time
     
     def connect_to_wifi(self, config):

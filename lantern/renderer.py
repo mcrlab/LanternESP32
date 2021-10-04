@@ -28,10 +28,10 @@ class Renderer():
         return self.palette.target_color
 
     def should_draw(self, now):
-        return not self.animation.is_complete(now)
+        return self.current_color is not self.palette.target_color
 
     def transform_color(self, position):
-        start_color = self.palette.start_color
+        start_color  = self.palette.start_color
         target_color = self.palette.target_color
 
         r = start_color.r + ((target_color.r - start_color.r) * position)

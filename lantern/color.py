@@ -38,3 +38,8 @@ class Color():
         }
     def as_hex(self):
         return '{:02x}{:02x}{:02x}'.format( self.r, self.g , self.b )
+
+    def __eq__(self, other):
+        if (isinstance(other, Color)):
+            return self.r == other.r and self.g == other.g and self.b == other.b
+        return false

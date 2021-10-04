@@ -44,8 +44,6 @@ class Broker():
 
 class OTAUpdater():
     def __init__(self, github_repo, module='', main_dir='main'):
-        print(github_repo)
-        print(main_dir)
         pass
     
     def download_and_install_update_if_available(self, ssid, password):

@@ -31,30 +31,30 @@ class Renderer():
         return not self.animation.is_complete(now)
 
     def transform_color(self, position):
-        r = self.palette.start_color.r + ((self.palette.target_color.r - self.palette.start_color.r) * position)
-        g = self.palette.start_color.g + ((self.palette.target_color.g - self.palette.start_color.g) * position)
-        b = self.palette.start_color.b + ((self.palette.target_color.b - self.palette.start_color.b) * position)
+        start_color = self.palette.start_color
+        target_color = self.palette.target_color
+
+        r = start_color.r + ((target_color.r - start_color.r) * position)
+        g = start_color.g + ((target_color.g - start_color.g) * position)
+        b = start_color.b + ((target_color.b - start_color.b) * position)
 
         color =  Color(r,g,b)
 
         return color
 
-    def fill(self, completion, position):    
-
-        if(completion == 0):
+    def calculate_color(self, position):    
+        if(position <= 0):
             color_to_render = self.palette.start_color
-        elif(completion > 0 and completion < 1):
+        elif(position > 0 and position < 1):
             color_to_render =  self.transform_color(position)
         else:
             color_to_render  = self.palette.target_color
-            
         self.current_color = color_to_render
-        return color_to_render
-
+        
     def color_to_render(self, now):
-        completion = self.animation.get_completion(now)
+        completion      = self.animation.get_completion(now)
         easing_function = self.select_easing_function()
-        position = easing_function(completion)
-        self.fill(completion, position)
+        position        = easing_function(completion)
+        self.calculate_color(position)
         return self.current_color
         

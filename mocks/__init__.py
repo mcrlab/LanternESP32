@@ -63,9 +63,16 @@ def unique_id():
 
 class Pin:
     OUT = 1
-    def __init__(self, pin_number, direction):
-        
+
+    def __init__(self, pin_number, direction=OUT):    
         pass
+
+class ADC:
+    def __init__(self, pin):
+        pass
+
+    def read(self):
+        return -1
 
 def reset():
     print("reboot");

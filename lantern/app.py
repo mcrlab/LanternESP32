@@ -6,9 +6,11 @@ from .colors import hex_colors
 from .view import View
 from .config_provider import ConfigProvider
 from binascii import hexlify
+
 try:
     from machine import unique_id
     from machine import Pin
+    from machine import ADC
     from machine import reset
     from machine import deepsleep
     from network import WLAN
@@ -18,7 +20,8 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     from mocks import unique_id
     from mocks import Broker as MQTTClient    
-    from mocks import Pin    
+    from mocks import Pin 
+    from mocks import ADC   
     from mocks import WLAN
     from mocks import reset
     from mocks import deepsleep
@@ -103,7 +106,8 @@ class App():
     def ping(self):
         update = json.dumps({
             "id" : self.id,
-            "color" : self.renderer.get_current_color().as_hex()
+            "color" : self.renderer.get_current_color().as_hex(),
+            "voltage": self.read_battery()
             })
         self.broker.publish("ping", update)
 
@@ -116,6 +120,10 @@ class App():
             })
         self.broker.publish("connect", update)
 
+    def read_battery(self):
+        adc = ADC(Pin(3))
+        voltage = adc.read()
+        return voltage
 
     def set_version(self):
         try:

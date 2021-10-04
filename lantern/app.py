@@ -41,7 +41,7 @@ class App():
 
         self.view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])
     
-        self.renderer = Renderer(runtime['NUMBER_OF_PIXELS'])
+        self.renderer = Renderer()
         self.last_instruction_time = 0
         self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
@@ -164,8 +164,8 @@ class App():
     def check_and_render(self, current_time, render_interval):
         if(((current_time - self.last_render_time) > render_interval)):
             if(self.renderer.should_draw(current_time)):
-                color_buffer = self.renderer.buffer_to_render(current_time)
-                self.view.render(color_buffer)
+                color = self.renderer.color_to_render(current_time)
+                self.view.render_color(color)
                 self.last_render_time = current_time
     
     def connect_to_wifi(self, config):

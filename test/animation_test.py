@@ -6,15 +6,21 @@ class TestClassAnimation:
         assert a.start_time == 10
         assert a.length == 20
 
-    def test_is_complete(self):
+    def test_is_complete_should_return_false_before_starting(self):
         a = animation.Animation(10, 20)
-        assert a.is_complete(10) == False
+        assert a.is_complete(9) == False
 
+    def test_is_complete_should_return_false_on_start(self):
+        a = animation.Animation(10, 20)
+        assert a.is_complete(9) == False
+
+    def test_is_complete_should_return_false_part_way_through(self):
         a = animation.Animation(10, 20)
         assert a.is_complete(20) == False
 
+    def test_is_complete_should_return_true_on_completion(self):
         a = animation.Animation(10, 20)
-        assert a.is_complete(30) == False
+        assert a.is_complete(30) == True
 
         a = animation.Animation(10, 20)
         assert a.is_complete(31) == True

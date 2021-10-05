@@ -22,13 +22,11 @@ class Broker():
         self.client.on_message=self.on_message
     
     def connect(self):
-        print("connecting to: ", self.server)
         self.client.connect(self.server, self.port)
         self.client.loop_start()
 
     
     def subscribe(self, topic):
-        print("subscribing to: ", topic)
         self.client.subscribe(topic)
         self.client.loop_start()
     
@@ -105,7 +103,7 @@ class WLAN():
         return self.connection_count > 5
     
     def connect(self, ssid, password):
-        print(ssid, password)
+        pass
     
     def active(self, status):
         pass

@@ -4,6 +4,7 @@ from .color import Color
 from .renderer import Renderer
 from .colors import hex_colors
 from .view import View
+from .logging import logger
 from .config_provider import ConfigProvider
 from binascii import hexlify
 
@@ -30,7 +31,7 @@ except (ModuleNotFoundError, ImportError) as e:
 
 class App():
     def __init__(self, updater):
-
+        
         self.provider = ConfigProvider()
         self.updater = updater
 
@@ -75,20 +76,20 @@ class App():
             self.paused = False
             self.last_update = ticks_ms()
             if "color" in topic:
-                print("Color update")
+                logger.log("Color update")
                 data = json.loads(message)
                 self.update_animation(data)
                 self.ping()
             elif "update" in topic:
-                print("Firmware Update")
+                logger.log("Firmware Update")
                 self.view.off()  
                 self.broker.disconnect()
                 self.updater.check_for_update_to_install_during_next_reboot()
-                print("checked")
+                logger.log("checked")
                 reset()
             elif "config" in topic:
-                print("config update")
-                print(message)
+                logger.log("config update")
+                logger.log(message)
                 self.provider.update_runtime_config(message)
             elif "sleep" in topic:
                 self.view.off()  
@@ -96,12 +97,12 @@ class App():
                 deepsleep(data["seconds"] * 1000)
             elif "restart" in topic:
                 self.view.off() 
-                print("restarting")
+                logger.log("restarting")
                 reset()
             else:
-                print("unknown command")
+                logger.log("unknown command")
         except Exception as inst:
-            print("Error in subscription callback", inst)
+            logger.warn("Error in subscription callback", inst)
 
     def ping(self):
         update = json.dumps({
@@ -134,7 +135,7 @@ class App():
             self.version = "dev"
 
     def backup(self):
-        print("starting backup sequence")
+        logger.log("starting backup sequence")
         color_int = 0
         self.last_update = ticks_ms()
         self.backup_started = ticks_ms()
@@ -157,12 +158,12 @@ class App():
                     color_int = 0
 
             self.check_and_render(current_time, config['RENDER_INTERVAL'])
-        print("Restarting")
+        logger.log("Restarting")
         self.view.off()
         reset()
 
     def subscribe(self):
-        print("Subscribing")
+        logger.log("Subscribing")
         self.broker.subscribe("color/"+self.id)
         self.broker.subscribe("update/"+self.id)
         self.broker.subscribe("config/"+self.id)
@@ -181,13 +182,13 @@ class App():
         wlan.active(True)
         time.sleep(1.0)
         if not wlan.isconnected():
-            print('connecting to network...')
+            logger.log('connecting to network...')
             wlan.connect(config['ssid'], config['password'])
             while not wlan.isconnected():    
                 time.sleep(1.0)
                 pass
 
-        print('network config:', wlan.ifconfig()) 
+        logger.log(wlan.ifconfig()) 
         time.sleep(1.0)
 
 
@@ -196,7 +197,7 @@ class App():
         try:
             config = self.provider.config['network']
             self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
-            print("Starting app")
+            logger.log("Starting app")
         
             self.set_version()
             self.connect_to_wifi(config)
@@ -223,7 +224,6 @@ class App():
                 self.broker.check_msg()
                     
         except (TypeError, OSError, Exception, MQTTException) as e:
-            print('Error', e)
+            logger.warn(e)
         finally:
-            print("Error Caught")
             self.backup()

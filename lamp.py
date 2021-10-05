@@ -1,5 +1,6 @@
 import os
 import threading
+from lantern.logging import logger
 
 try:
     from lantern.ota_updater import OTAUpdater
@@ -9,6 +10,7 @@ except (ModuleNotFoundError, ImportError) as e:
 from lantern.app import App
 
 def run():
+    logger.DEBUG = True
     updater = OTAUpdater('https://github.com/mcrlab/LanternIoT', main_dir='lantern')
     app = App(updater)
     app.main()

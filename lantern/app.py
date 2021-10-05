@@ -89,7 +89,6 @@ class App():
                 reset()
             elif "config" in topic:
                 logger.log("config update")
-                logger.log(message)
                 self.provider.update_runtime_config(message)
             elif "sleep" in topic:
                 self.view.off()  
@@ -102,7 +101,8 @@ class App():
             else:
                 logger.log("unknown command")
         except Exception as inst:
-            logger.warn("Error in subscription callback", inst)
+            logger.warn("Error in subscription callback")
+            logger.warn(inst)
 
     def ping(self):
         update = json.dumps({
@@ -122,9 +122,13 @@ class App():
         self.broker.publish("connect", update)
 
     def read_battery(self):
-        adc = ADC(Pin(3))
-        voltage = adc.read()
-        return voltage
+        config = self.provider.config['runtime']
+        if config['BATTERY_PIN']:
+            adc = ADC(Pin(config['BATTERY_PIN']))
+            voltage = adc.read()
+            return voltage
+        else:
+            return -1
 
     def set_version(self):
         try:
@@ -188,7 +192,7 @@ class App():
                 time.sleep(1.0)
                 pass
 
-        logger.log(wlan.ifconfig()) 
+        #logger.log(wlan.ifconfig()) 
         time.sleep(1.0)
 
 

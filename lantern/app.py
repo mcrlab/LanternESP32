@@ -7,6 +7,7 @@ from .view import View
 from .logging import logger
 from .config_provider import ConfigProvider
 from binascii import hexlify
+import sys
 
 try:
     from machine import unique_id
@@ -117,16 +118,20 @@ class App():
             "id" : self.id,
             "color" : self.renderer.get_current_color().as_hex(),
             "version": self.version,
+            "platform": sys.platform,
             "config": self.provider.config['runtime']
             })
         self.broker.publish("connect", update)
 
     def read_battery(self):
         config = self.provider.config['runtime']
-        if config['BATTERY_PIN']:
-            adc = ADC(Pin(config['BATTERY_PIN']))
-            voltage = adc.read()
-            return voltage
+        if 'BATTERY_PIN' in config:
+            if config['BATTERY_PIN']>=0:
+                adc = ADC(Pin(config['BATTERY_PIN']))
+                voltage = adc.read()
+                return voltage
+            else:
+                return -1
         else:
             return -1
 

@@ -234,6 +234,7 @@ class App():
                     self.paused = True
                     self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut")
                     self.last_update = current_time
+                    self.ping()
                 else:
                     self.check_and_render(current_time, render_interval)
 

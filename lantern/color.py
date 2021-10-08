@@ -42,4 +42,4 @@ class Color():
     def __eq__(self, other):
         if (isinstance(other, Color)):
             return self.r == other.r and self.g == other.g and self.b == other.b
-        return false
+        return False

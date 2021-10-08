@@ -81,6 +81,9 @@ class App():
                 data = json.loads(message)
                 self.update_animation(data)
                 self.ping()
+            elif "poke" in topic:
+                logger.log("Poke request")
+                self.connect()
             elif "update" in topic:
                 logger.log("Firmware Update")
                 self.view.off()  
@@ -173,6 +176,7 @@ class App():
 
     def subscribe(self):
         logger.log("Subscribing")
+        self.broker.subscribe("poke")
         self.broker.subscribe("color/"+self.id)
         self.broker.subscribe("update/"+self.id)
         self.broker.subscribe("config/"+self.id)

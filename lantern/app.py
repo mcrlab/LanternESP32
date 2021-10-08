@@ -19,6 +19,7 @@ try:
     from time import ticks_ms
     from .mqtt import MQTTClient
     from umqtt.simple import MQTTException
+    from gc import mem_free
 except (ModuleNotFoundError, ImportError) as e:
     from mocks import unique_id
     from mocks import Broker as MQTTClient    
@@ -29,6 +30,7 @@ except (ModuleNotFoundError, ImportError) as e:
     from mocks import deepsleep
     from mocks import ticks_ms
     from mocks import MQTTException
+    from mocks import mem_free
 
 class App():
     def __init__(self, updater):
@@ -112,6 +114,7 @@ class App():
         update = json.dumps({
             "id" : self.id,
             "color" : self.renderer.get_current_color().as_hex(),
+            "memory": mem_free(),
             "voltage": self.read_battery()
             })
         self.broker.publish("ping", update)

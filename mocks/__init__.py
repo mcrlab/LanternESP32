@@ -122,3 +122,6 @@ class NeoPixel(dict):
 
 class MQTTException(Exception):
     pass
+
+def mem_free():
+    return 43

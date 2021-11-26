@@ -33,7 +33,7 @@ except (ModuleNotFoundError, ImportError) as e:
     from mocks import mem_free
 
 class App():
-    def __init__(self, updater):
+    def __init__(self, updater, id=None):
         
         self.provider = ConfigProvider()
         self.updater = updater
@@ -41,8 +41,10 @@ class App():
         runtime = self.provider.config['runtime']
         config = self.provider.config['network']
 
-
-        self.id = hexlify(unique_id()).decode()
+        if id is None:
+            self.id = hexlify(unique_id()).decode()
+        else:
+            self.id = id
         self.broker = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
         self.broker.DEBUG = True
 

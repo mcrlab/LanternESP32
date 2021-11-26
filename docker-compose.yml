@@ -2,9 +2,11 @@ version: '3.4'
 
 services:
   lanterniot:
-    image: lanterniot
     build:
       context: .
       dockerfile: ./Dockerfile
-    environment:
-      - NUMBER_OF_LAMPS=${NUMBER_OF_LAMPS}
+    networks:
+      - lantern-network
+networks:
+  lantern-network:
+    driver: bridge # a user defined bridge is required; the default bridge network doesn't support name resolution

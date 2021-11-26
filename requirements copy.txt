@@ -1,8 +1,0 @@
-adafruit-ampy==1.0.7
-Click==7.0
-ecdsa==0.13.3
-esptool==2.7
-paho-mqtt==1.5.0
-pyaes==1.6.1
-pyserial==3.4
-python-dotenv==0.10.3

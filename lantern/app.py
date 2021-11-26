@@ -65,7 +65,7 @@ class App():
         color = Color(0,0,0)
         color.from_hex(data['color'])
         animation_length = data['time']
-        animation_start_time = current_time + data['delay']
+        animation_start_time = current_time
 
         if 'easing' in data:
             easing = data['easing']
@@ -165,8 +165,7 @@ class App():
                 color.from_hex(hex)
                 data = {
                     "color": color.as_hex(),
-                    "time": 2000,
-                    "delay": 10
+                    "time": 2000
                 }
                 self.update_animation(data)
                 self.last_update = current_time

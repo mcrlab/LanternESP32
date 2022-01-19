@@ -12,6 +12,7 @@ jobs:
     steps:
       - checkout
       - run: sudo pip3 install -r requirements.dev.txt
+      - run: pytest
 
   say-hello:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.

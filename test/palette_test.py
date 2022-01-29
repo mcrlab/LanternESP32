@@ -8,6 +8,7 @@ class TestClassPalette:
         p = palette.Palette(red, blue)
         assert p.start_color == red
         assert p.target_color == blue
+        
     def test_update(self):
         red = color.Color(255,0,0)
         blue  = color.Color(0,0,255)

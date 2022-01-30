@@ -189,7 +189,7 @@ class App():
 
     def check_and_render(self, current_time, render_interval):
         if(((current_time - self.last_render_time) > render_interval)):
-            if(self.renderer.should_draw(current_time)):
+            if(self.renderer.should_draw()):
                 color = self.renderer.color_to_render(current_time)
                 self.view.render_color(color)
                 self.last_render_time = current_time

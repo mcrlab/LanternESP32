@@ -24,10 +24,7 @@ class Renderer():
         else:
             return default_easing
 
-    def get_current_color(self):
-        return self.palette.target_color
-
-    def should_draw(self, now):
+    def should_draw(self):
         return self.current_color is not self.palette.target_color
 
     def transform_color(self, position):

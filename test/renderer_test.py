@@ -79,11 +79,12 @@ class TestClassRenderer:
         r.update(target_color, animation_start_time, animation_length, easing)
         calculated_color = r.transform_color(0.5)
         assert calculated_color == Color(127,127,127)
-
+    
     def test_update(self):
         assert True
 
     def test_select_easing_function(self):
+        from lantern.easing import easings
         assert True
     
    

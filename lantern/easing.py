@@ -208,7 +208,3 @@ easings = {
     "BackEaseInOut":BackEaseInOut,
     "BounceEaseOut":BounceEaseOut,
 }
-
-#"BounceEaseInOut":BounceEaseInOut
- #  "BounceEaseIn":BounceEaseIn,
- 

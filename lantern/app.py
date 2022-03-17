@@ -20,7 +20,7 @@ try:
     from .mqtt import MQTTClient
     from umqtt.simple import MQTTException
     from gc import mem_free
-except (ModuleNotFoundError, ImportError) as e:
+except (ImportError, ModuleNotFoundError) as e:
     from mocks import unique_id
     from mocks import Broker as MQTTClient    
     from mocks import Pin 
@@ -85,6 +85,9 @@ class App():
                 data = json.loads(message)
                 self.update_animation(data)
                 self.ping()
+            elif "sync" in topic:
+                logger.log("sync request")
+                pass
             elif "poke" in topic:
                 logger.log("Poke request")
                 self.connect()
@@ -115,7 +118,7 @@ class App():
     def ping(self):
         update = json.dumps({
             "id" : self.id,
-            "color" : self.renderer.get_current_color().as_hex(),
+            "color" : self.renderer.current_color.as_hex(),
             "memory": mem_free(),
             "voltage": self.read_battery()
             })
@@ -124,7 +127,7 @@ class App():
     def connect(self):
         update = json.dumps({
             "id" : self.id,
-            "color" : self.renderer.get_current_color().as_hex(),
+            "color" : self.renderer.current_color.as_hex(),
             "version": self.version,
             "platform": sys.platform,
             "config": self.provider.config['runtime']
@@ -180,6 +183,7 @@ class App():
 
     def subscribe(self):
         logger.log("Subscribing")
+        self.broker.subscribe("sync")
         self.broker.subscribe("poke")
         self.broker.subscribe("color/"+self.id)
         self.broker.subscribe("update/"+self.id)
@@ -228,9 +232,10 @@ class App():
 
             sleep_interval = self.provider.config['runtime']['SLEEP_INTERVAL']
             render_interval = self.provider.config['runtime']['RENDER_INTERVAL']
-      
+
             while True:
                 current_time = ticks_ms()
+
                 if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True
                     self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut")
@@ -243,5 +248,6 @@ class App():
                     
         except (TypeError, OSError, Exception, MQTTException) as e:
             logger.warn(e)
-        finally:
             self.backup()
+        except(KeyboardInterrupt) as e:
+            pass

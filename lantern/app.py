@@ -119,8 +119,7 @@ class App():
         update = json.dumps({
             "id" : self.id,
             "color" : self.renderer.current_color.as_hex(),
-            "memory": mem_free(),
-            "voltage": self.read_battery()
+            "memory": mem_free()
             })
         self.broker.publish("ping", update)
 
@@ -133,18 +132,6 @@ class App():
             "config": self.provider.config['runtime']
             })
         self.broker.publish("connect", update)
-
-    def read_battery(self):
-        config = self.provider.config['runtime']
-        if 'BATTERY_PIN' in config:
-            if config['BATTERY_PIN']>=0:
-                adc = ADC(Pin(config['BATTERY_PIN']))
-                voltage = adc.read()
-                return voltage
-            else:
-                return -1
-        else:
-            return -1
 
     def set_version(self):
         try:

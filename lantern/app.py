@@ -41,6 +41,9 @@ class App():
         runtime = self.provider.config['runtime']
         config = self.provider.config['network']
 
+        if runtime['DEBUG']:
+            logger.enable()
+            
         if id is None:
             self.id = hexlify(unique_id()).decode()
         else:

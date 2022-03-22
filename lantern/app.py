@@ -43,75 +43,69 @@ class App():
 
         if runtime['DEBUG']:
             logger.enable()
-            
+
         if id is None:
             self.id = hexlify(unique_id()).decode()
         else:
             self.id = id
+
         self.broker = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
         self.broker.DEBUG = True
-
-        self.view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])
-    
-        self.renderer = Renderer()
-        self.last_instruction_time = 0
-        self.last_render_time = 0
         self.broker.set_callback(self.subscription_callback)
-        self.updater = updater
+
+
+        self.view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])    
+        self.renderer = Renderer(self.view, runtime['RENDER_INTERVAL'])
+
         self.version = ""
         self.paused = False   
-
-
-    def update_animation(self, data):
-        current_time = ticks_ms()
-
-        color = Color(0,0,0)
-        color.from_hex(data['color'])
-        animation_length = data['time']
-        animation_start_time = current_time
-
-        if 'easing' in data:
-            easing = data['easing']
-        else:
-            easing = "ElasticEaseOut"
-
-        self.renderer.update(color, animation_start_time, animation_length, easing) 
-        self.last_instruction_time = current_time
-
 
     def subscription_callback(self, topic, message):
         try:
             self.paused = False
             self.last_update = ticks_ms()
+            s = topic.split("/")
+
             if "color" in topic:
                 logger.log("Color update")
                 data = json.loads(message)
-                self.update_animation(data)
+                self.renderer.update_animation(data)
                 self.ping()
+            
             elif "sync" in topic:
                 logger.log("sync request")
                 pass
+            
             elif "poke" in topic:
                 logger.log("Poke request")
                 self.connect()
+            
             elif "update" in topic:
-                logger.log("Firmware Update")
-                self.view.off()  
-                self.broker.disconnect()
-                self.updater.check_for_update_to_install_during_next_reboot()
-                logger.log("checked")
-                reset()
+                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                    logger.log("Firmware Update")
+                    self.view.off()  
+                    self.broker.disconnect()
+                    self.updater.check_for_update_to_install_during_next_reboot()
+                    logger.log("checked")
+                    reset()
+            
             elif "config" in topic:
-                logger.log("config update")
-                self.provider.update_runtime_config(message)
+                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                    logger.log("config update")
+                    self.provider.update_runtime_config(message)
+            
             elif "sleep" in topic:
-                self.view.off()  
-                data = json.loads(message)
-                deepsleep(data["seconds"] * 1000)
+                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                    logger.log("sleeping")
+                    self.view.off()  
+                    data = json.loads(message)
+                    deepsleep(data["seconds"] * 1000)
+
             elif "restart" in topic:
-                self.view.off() 
-                logger.log("restarting")
-                reset()
+                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                    self.view.off() 
+                    logger.log("restarting")
+                    reset()
             else:
                 logger.log("unknown command")
         except Exception as inst:
@@ -166,7 +160,7 @@ class App():
                 if(color_int >= len(hex_colors)):
                     color_int = 0
 
-            self.check_and_render(current_time, config['RENDER_INTERVAL'])
+            self.renderer.check_and_render(current_time, config['RENDER_INTERVAL'])
         logger.log("Restarting")
         self.view.off()
         reset()
@@ -176,17 +170,20 @@ class App():
         self.broker.subscribe("sync")
         self.broker.subscribe("poke")
         self.broker.subscribe("color/"+self.id)
+
+        self.broker.subscribe("update")
         self.broker.subscribe("update/"+self.id)
+
+        self.broker.subscribe("config")
         self.broker.subscribe("config/"+self.id)
+
+        self.broker.subscribe("restart")
         self.broker.subscribe("restart/"+self.id)
+
+        self.broker.subscribe("sleep")
         self.broker.subscribe("sleep/"+self.id)
 
-    def check_and_render(self, current_time, render_interval):
-        if(((current_time - self.last_render_time) > render_interval)):
-            if(self.renderer.should_draw()):
-                color = self.renderer.color_to_render(current_time)
-                self.view.render_color(color)
-                self.last_render_time = current_time
+
     
     def connect_to_wifi(self, config):
         wlan = WLAN(0)
@@ -199,7 +196,7 @@ class App():
                 time.sleep(1.0)
                 pass
 
-        #logger.log(wlan.ifconfig()) 
+        logger.log(wlan.ifconfig()) 
         time.sleep(1.0)
 
 
@@ -207,6 +204,8 @@ class App():
 
         try:
             config = self.provider.config['network']
+            runtime = self.provider.config['runtime']
+
             self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
             logger.log("Starting app")
         
@@ -216,12 +215,11 @@ class App():
             self.subscribe()
             self.connect()
             
-            self.last_render_time = ticks_ms()
             self.view.off()
             self.last_update = ticks_ms()
 
-            sleep_interval = self.provider.config['runtime']['SLEEP_INTERVAL']
-            render_interval = self.provider.config['runtime']['RENDER_INTERVAL']
+            sleep_interval = runtime['SLEEP_INTERVAL']
+            
 
             while True:
                 current_time = ticks_ms()
@@ -232,7 +230,7 @@ class App():
                     self.last_update = current_time
                     self.ping()
                 else:
-                    self.check_and_render(current_time, render_interval)
+                    self.renderer.check_and_render(current_time)
 
                 self.broker.check_msg()
                     
@@ -240,4 +238,6 @@ class App():
             logger.warn(e)
             self.backup()
         except(KeyboardInterrupt) as e:
+            self.view.off()
+            logger.log("Exiting")
             pass

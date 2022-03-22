@@ -1,3 +1,8 @@
+try:
+    from time import ticks_ms
+except (ImportError, ModuleNotFoundError) as e:
+    from mocks import ticks_ms
+
 from .palette import Palette
 from .animation import Animation
 from .color import Color
@@ -7,11 +12,30 @@ from .easing import ElasticEaseOut as default_easing
 BLACK = Color(0,0,0)
 
 class Renderer():
-    def __init__(self):
+    def __init__(self, view, render_interval):
         self.palette = Palette(BLACK, BLACK)
         self.animation = Animation(0, 0)
         self.current_color = BLACK
         self.easing = "ElasticEaseOut"
+        self.last_render_time = 0
+        self.render_interval = render_interval
+        self.view = view
+
+    def update_animation(self, data):
+        current_time = ticks_ms()
+
+        color = Color(0,0,0)
+        color.from_hex(data['color'])
+        animation_length = data['time']
+        animation_start_time = current_time
+
+        if 'easing' in data:
+            easing = data['easing']
+        else:
+            easing = "ElasticEaseOut"
+
+        self.update(color, animation_start_time, animation_length, easing) 
+
 
     def update(self, target_color, animation_start_time, animation_length, easing):
         self.animation = Animation(animation_start_time, animation_length)
@@ -54,4 +78,10 @@ class Renderer():
         position        = easing_function(completion)
         self.calculate_color(position)
         return self.current_color
-        
+
+    def check_and_render(self, current_time):
+        if(((current_time - self.last_render_time) > self.render_interval)):
+            if(self.should_draw()):
+                color = self.color_to_render(current_time)
+                self.view.render_color(color)
+                self.last_render_time = current_time       

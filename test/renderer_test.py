@@ -5,32 +5,45 @@ from lantern.color import Color
 
 class TestClassRenderer:
     def test_initialise(self):
-        r= Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         assert isinstance(r, Renderer)
 
 
     def test_default_easing(self):
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
+
         assert r.easing == "ElasticEaseOut"
     
     def test_creates_blank_animation(self):
         from lantern.animation import Animation
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         assert isinstance(r.animation, Animation)
     
     def test_creates_blank_palette(self):
         from lantern.palette import Palette
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         assert isinstance(r.palette, Palette)
 
     def test_default_color_is_black(self):
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         from lantern.color import Color
         black = Color(0,0,0)
         assert r.current_color == black
 
     def test_calculate_color_should_set_start_color_if_not_started(self):
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         target_color = Color(0,0,255)
 
         animation_start_time = 0
@@ -41,7 +54,9 @@ class TestClassRenderer:
         assert r.current_color == Color(0,0,0)
 
     def test_calculate_color_should_calculate_color_if_in_animation(self, mocker):
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         target_color = Color(0,0,255)
 
         def mock_calculate(self, position):
@@ -58,7 +73,9 @@ class TestClassRenderer:
         assert r.current_color == Color(255,255,255)
 
     def test_calculate_color_should_set_end_color_if_ended(self):
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         target_color = Color(0,0,255)
 
         animation_start_time = 0
@@ -70,7 +87,9 @@ class TestClassRenderer:
 
 
     def test_transform_color(self):
-        r = Renderer()
+        v = {}
+        render_interval = 1
+        r = Renderer(v, render_interval)
         target_color = Color(255,255,255)
 
         animation_start_time = 0
@@ -84,7 +103,7 @@ class TestClassRenderer:
         assert True
 
     def test_select_easing_function(self):
-        from lantern.easing import easings
+        # mock easings 
         assert True
     
    

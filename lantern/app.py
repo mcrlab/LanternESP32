@@ -61,56 +61,55 @@ class App():
         self.paused = False   
 
     def subscription_callback(self, topic, message):
-        try:
-            self.paused = False
-            self.last_update = ticks_ms()
-            s = topic.split("/")
+        logger.log(topic.decode('utf-8'))
+        topic = topic.decode("utf-8")
+        self.paused = False
+        self.last_update = ticks_ms()
+        s = topic.split("/")
 
-            if "color" in topic:
-                logger.log("Color update")
+        if "color" in topic:
+            logger.log("Color update")
+            data = json.loads(message)
+            self.renderer.update_animation(data)
+            self.ping()
+        
+        elif "sync" in topic:
+            logger.log("sync request")
+            pass
+        
+        elif "poke" in topic:
+            logger.log("Poke request")
+            self.connect()
+        
+        elif "update" in topic:
+            if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                logger.log("Firmware Update")
+                self.view.off()  
+                self.broker.disconnect()
+                self.updater.check_for_update_to_install_during_next_reboot()
+                logger.log("checked")
+                reset()
+        
+        elif "config" in topic:
+            if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                logger.log("config update")
+                self.provider.update_runtime_config(message)
+        
+        elif "sleep" in topic:
+            if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                logger.log("sleeping")
+                self.view.off()  
                 data = json.loads(message)
-                self.renderer.update_animation(data)
-                self.ping()
-            
-            elif "sync" in topic:
-                logger.log("sync request")
-                pass
-            
-            elif "poke" in topic:
-                logger.log("Poke request")
-                self.connect()
-            
-            elif "update" in topic:
-                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
-                    logger.log("Firmware Update")
-                    self.view.off()  
-                    self.broker.disconnect()
-                    self.updater.check_for_update_to_install_during_next_reboot()
-                    logger.log("checked")
-                    reset()
-            
-            elif "config" in topic:
-                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
-                    logger.log("config update")
-                    self.provider.update_runtime_config(message)
-            
-            elif "sleep" in topic:
-                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
-                    logger.log("sleeping")
-                    self.view.off()  
-                    data = json.loads(message)
-                    deepsleep(data["seconds"] * 1000)
+                deepsleep(data["seconds"] * 1000)
 
-            elif "restart" in topic:
-                if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
-                    self.view.off() 
-                    logger.log("restarting")
-                    reset()
-            else:
-                logger.log("unknown command")
-        except Exception as inst:
-            logger.warn("Error in subscription callback")
-            logger.warn(inst)
+        elif "restart" in topic:
+            if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
+                self.view.off() 
+                logger.log("restarting")
+                reset()
+        else:
+            logger.log("unknown command")
+
 
     def ping(self):
         update = json.dumps({

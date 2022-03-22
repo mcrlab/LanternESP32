@@ -26,15 +26,15 @@ class OTAUpdater:
             sta_if.connect(ssid, password)
             while not sta_if.isconnected():
                 pass
-        logger.log('network config:', sta_if.ifconfig())
+        #logger.log('network config:'+ sta_if.ifconfig())
 
     def check_for_update_to_install_during_next_reboot(self):
         current_version = self.get_version(self.modulepath(self.main_dir))
         latest_version = self.get_latest_version()
 
         logger.log('Checking version... ')
-        logger.log('\tCurrent version: ', current_version)
-        logger.log('\tLatest version: ', latest_version)
+        logger.log('\tCurrent version: '+ current_version)
+        logger.log('\tLatest version: '+ latest_version)
         if latest_version > current_version:
             logger.log('New version available, will download and install on next reboot')
             os.mkdir(self.modulepath('next'))
@@ -46,7 +46,7 @@ class OTAUpdater:
         if 'next' in os.listdir(self.module):
             if '.version_on_reboot' in os.listdir(self.modulepath('next')):
                 latest_version = self.get_version(self.modulepath('next'), '.version_on_reboot')
-                logger.log('New update found: ', latest_version)
+                logger.log('New update found: '+ latest_version)
                 self._download_and_install_update(latest_version, ssid, password)
         else:
             logger.log('No new updates found...')
@@ -58,17 +58,17 @@ class OTAUpdater:
         self.rmtree(self.modulepath(self.main_dir))
         os.rename(self.modulepath('next/.version_on_reboot'), self.modulepath('next/.version'))
         os.rename(self.modulepath('next'), self.modulepath(self.main_dir))
-        logger.log('Update installed (', latest_version, '), will reboot now')
+        logger.log('Update installed ('+ latest_version+ '), will reboot now')
         machine.reset()
 
     def apply_pending_updates_if_available(self):
         if 'next' in os.listdir(self.module):
             if '.version' in os.listdir(self.modulepath('next')):
                 pending_update_version = self.get_version(self.modulepath('next'))
-                logger.log('Pending update found: ', pending_update_version)
+                logger.log('Pending update found: '+ pending_update_version)
                 self.rmtree(self.modulepath(self.main_dir))
                 os.rename(self.modulepath('next'), self.modulepath(self.main_dir))
-                logger.log('Update applied (', pending_update_version, '), ready to rock and roll')
+                logger.log('Update applied ('+ pending_update_version+ '), ready to rock and roll')
             else:
                 logger.log('Corrupt pending update found, discarding...')
                 self.rmtree(self.modulepath('next'))
@@ -80,8 +80,8 @@ class OTAUpdater:
         latest_version = self.get_latest_version()
 
         logger.log('Checking version... ')
-        logger.log('\tCurrent version: ', current_version)
-        logger.log('\tLatest version: ', latest_version)
+        logger.log('Current version: '+ current_version)
+        logger.log('Latest version: '+ latest_version)
         if latest_version > current_version:
             logger.log('Updating...')
             os.mkdir(self.modulepath('next'))
@@ -132,7 +132,7 @@ class OTAUpdater:
         file_list.close()
 
     def download_file(self, url, path):
-        logger.log('\tDownloading: ', path)
+        logger.log('\tDownloading: '+ path)
         with open(path, 'w') as outfile:
             try:
                 response = self.http_client.get(url)

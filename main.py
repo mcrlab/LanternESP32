@@ -6,7 +6,7 @@ except (ModuleNotFoundError, ImportError) as e:
 from lantern.app import App
 
 def run():
-    updater = OTAUpdater('https://github.com/mcrlab/LanternIoT', main_dir='lantern')
+    updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', main_dir='lantern')
     app = App(updater)
     app.main()
 

@@ -7,3 +7,4 @@ venv/
 .DS_Store
 network.config.json
 *.pyc
+error.log

@@ -4,10 +4,10 @@ counter=0
 while [ ! -e /dev/cu.usbmodem01 ]; do
     sleep 1
     counter=$((counter + 1))
-    echo "Waiting...."
+    echo "Waiting for ESP32...."
     if [ $counter -ge 50 ]; then
         echo "Device not found"
-        exit
+        exit 1
     fi
 done
 
@@ -26,7 +26,7 @@ while [ ! -e /dev/cu.usbmodem1234561 ]; do
     counter=$((counter + 1))
     echo "Waiting for reset..."
     if [ $counter -ge 50 ]; then
-        exit
+        exit 1
     fi
 done
 
@@ -37,11 +37,8 @@ echo "Uploading lantern library"
 ampy put lantern/
 sleep 1
 echo "Uploading runtime config"
-ampy put runtime.config.json runtime.config.json
-sleep 1
-echo "Uploading network config"
-ampy put network.config.json network.config.json
-sleep 1
+ampy put config.json config.json
+sleep 1xxw
 echo "Uploading main script"
 ampy put main.py
 echo "All done!"

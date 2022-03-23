@@ -36,11 +36,10 @@ class App():
     def __init__(self, updater, id=None):
         
         self.updater = updater
+       
+        config = provider.config
 
-        runtime = provider.config['runtime']
-        config = provider.config['network']
-
-        if runtime['DEBUG']:
+        if config['DEBUG']:
             logger.enable()
 
         if id is None:
@@ -48,20 +47,20 @@ class App():
         else:
             self.id = id
 
-        self.broker = MQTTClient(self.id, config['mqtt_server'], config['mqtt_port'], config['mqtt_user'], config['mqtt_password'])
+        self.broker = MQTTClient(self.id, config['MQTT_SERVER'], config['MQTT_PORT'], config['MQTT_USER'], config['MQTT_PASSWORD'])
         self.broker.DEBUG = True
         self.broker.set_callback(self.subscription_callback)
 
 
-        self.view = View(Pin(runtime['VIEW_PIN'], Pin.OUT) , runtime['NUMBER_OF_PIXELS'])    
-        self.renderer = Renderer(self.view, runtime['RENDER_INTERVAL'])
+        self.view = View(Pin(config['VIEW_PIN'], Pin.OUT) , config['NUMBER_OF_PIXELS'])    
+        self.renderer = Renderer(self.view, config['RENDER_INTERVAL'])
 
         self.version = ""
         self.paused = False   
 
     def subscription_callback(self, topic, message):
-        logger.log(topic.decode('utf-8'))
-        topic = topic.decode("utf-8")
+        if(type(topic) is bytes):
+            topic = topic.decode("utf-8")
         self.paused = False
         self.last_update = ticks_ms()
         s = topic.split("/")
@@ -92,7 +91,7 @@ class App():
         elif "config" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
                 logger.log("config update")
-                provider.update_runtime_config(message)
+                provider.update_config(message)
         
         elif "sleep" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
@@ -124,7 +123,7 @@ class App():
             "color" : self.renderer.current_color.as_hex(),
             "version": self.version,
             "platform": sys.platform,
-            "config": provider.config['runtime']
+            "config": provider.config
             })
         self.broker.publish("connect", update)
 
@@ -141,7 +140,7 @@ class App():
         color_int = 0
         self.last_update = ticks_ms()
         self.backup_started = ticks_ms()
-        config = provider.config['runtime']
+        config = provider.config
         while ticks_ms() < self.backup_started + config['BACKUP_INTERVAL']:
             current_time = ticks_ms()
             if (self.last_update + 5000 < current_time):
@@ -189,7 +188,7 @@ class App():
         time.sleep(1.0)
         if not wlan.isconnected():
             logger.log('connecting to network...')
-            wlan.connect(config['ssid'], config['password'])
+            wlan.connect(config['SSID'], config['PASSWORD'])
             while not wlan.isconnected():    
                 time.sleep(1.0)
                 pass
@@ -201,10 +200,8 @@ class App():
     def main(self):
 
         try:
-            config = provider.config['network']
-            runtime = provider.config['runtime']
-
-            self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
+            config = provider.config
+            self.updater.download_and_install_update_if_available(config['SSID'], config['PASSWORD'])
             logger.log("Starting app")
         
             self.set_version()
@@ -216,7 +213,7 @@ class App():
             self.view.off()
             self.last_update = ticks_ms()
 
-            sleep_interval = runtime['SLEEP_INTERVAL']
+            sleep_interval = config['SLEEP_INTERVAL']
             
 
             while True:

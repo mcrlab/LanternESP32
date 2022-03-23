@@ -1,8 +1,0 @@
-{
-    "ssid": "SSID", 
-    "password": "PASSWORD",
-    "mqtt_server" : "MQTT_SERVER",
-    "mqtt_port" : 1883,
-    "mqtt_user" : "USERNAME",
-    "mqtt_password" : "PASSWORD"
-}

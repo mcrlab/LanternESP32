@@ -5,6 +5,6 @@ __pycache__/
 .vscode/
 venv/
 .DS_Store
-network.config.json
+config.json
 *.pyc
 error.log

@@ -54,4 +54,4 @@ class ConfigProvider():
         f.close()
         self.runtime_config = current_config
         
-
+provider = ConfigProvider()

@@ -5,7 +5,7 @@ from .renderer import Renderer
 from .colors import hex_colors
 from .view import View
 from .logging import logger
-from .config_provider import ConfigProvider
+from .config_provider import provider
 from binascii import hexlify
 import sys
 
@@ -35,11 +35,10 @@ except (ImportError, ModuleNotFoundError) as e:
 class App():
     def __init__(self, updater, id=None):
         
-        self.provider = ConfigProvider()
         self.updater = updater
 
-        runtime = self.provider.config['runtime']
-        config = self.provider.config['network']
+        runtime = provider.config['runtime']
+        config = provider.config['network']
 
         if runtime['DEBUG']:
             logger.enable()
@@ -93,7 +92,7 @@ class App():
         elif "config" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
                 logger.log("config update")
-                self.provider.update_runtime_config(message)
+                provider.update_runtime_config(message)
         
         elif "sleep" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
@@ -125,7 +124,7 @@ class App():
             "color" : self.renderer.current_color.as_hex(),
             "version": self.version,
             "platform": sys.platform,
-            "config": self.provider.config['runtime']
+            "config": provider.config['runtime']
             })
         self.broker.publish("connect", update)
 
@@ -142,7 +141,7 @@ class App():
         color_int = 0
         self.last_update = ticks_ms()
         self.backup_started = ticks_ms()
-        config = self.provider.config['runtime']
+        config = provider.config['runtime']
         while ticks_ms() < self.backup_started + config['BACKUP_INTERVAL']:
             current_time = ticks_ms()
             if (self.last_update + 5000 < current_time):
@@ -202,8 +201,8 @@ class App():
     def main(self):
 
         try:
-            config = self.provider.config['network']
-            runtime = self.provider.config['runtime']
+            config = provider.config['network']
+            runtime = provider.config['runtime']
 
             self.updater.download_and_install_update_if_available(config['ssid'], config['password'])
             logger.log("Starting app")

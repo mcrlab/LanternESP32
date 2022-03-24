@@ -1,5 +1,6 @@
 #!/bin/bash
 counter=0
+export AMPY_PORT=/dev/cu.usbmodem1234561
 
 while [ ! -e /dev/cu.usbmodem01 ]; do
     sleep 1

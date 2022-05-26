@@ -203,7 +203,7 @@ class App():
             config = provider.config
             self.updater.download_and_install_update_if_available(config['SSID'], config['PASSWORD'])
             logger.log("Starting app")
-        
+            logger.log(self.id)
             self.set_version()
             self.connect_to_wifi(config)
             self.broker.connect()

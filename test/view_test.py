@@ -1,4 +1,3 @@
-from lantern import color
 from lantern.view import View
 from lantern.color import Color
 
@@ -10,7 +9,7 @@ class TestClassView:
     def test_render_should_render_a_buffer_of_colors(self):
         view= View(1,3)
         colorBuffer = [Color(255,0,0), Color(0,255,0), Color(0,0,255)]
-        view.render(colorBuffer)
+        view.render_buffer(colorBuffer)
         assert view.np[0] == (255,0,0)
         assert view.np[1] == (0,255,0)
         assert view.np[2] == (0,0,255)

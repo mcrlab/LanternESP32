@@ -2,8 +2,6 @@ from .timer import get_current_time
 from .palette import Palette
 from .animation import Animation
 from .color import Color
-from .easing import easings
-from .easing import ElasticEaseOut as default_easing
 
 BLACK = Color(0,0,0)
 
@@ -21,9 +19,7 @@ def transform_color(position, start_color, target_color):
 class Renderer():
     def __init__(self, view, render_interval):
         self.palette = Palette(BLACK, BLACK)
-        self.animation = Animation(0, 0)
         self.current_color = BLACK
-        self.easing = "ElasticEaseOut"
         self.last_render_time = 0
         self.render_interval = render_interval
         self.view = view
@@ -36,19 +32,14 @@ class Renderer():
         animation_length = data['time']
         animation_start_time = current_time
 
-        self.animation = Animation(animation_start_time, animation_length)
+        if 'easing' in data:
+            easing = data['easing']
+        else:
+            easing = "ElasticEaseOut"
+
+        self.animation = Animation(animation_start_time, animation_length, easing)
         self.palette.update(self.current_color, target_color)
 
-        if 'easing' in data:
-            self.easing = data['easing']
-        else:
-            self.easing = "ElasticEaseOut"
-
-    def select_easing_function(self):
-        if self.easing in easings:
-            return easings[self.easing]
-        else:
-            return default_easing
 
     def calculate_color(self, position):    
         if(position <= 0):
@@ -60,9 +51,8 @@ class Renderer():
         return color_to_render
         
     def color_to_render(self, current_time):
-        completion      = self.animation.get_completion(current_time)
-        easing_function = self.select_easing_function()
-        position        = easing_function(completion)
+        completion      = self.animation.get_completion(current_time) #TODO combine these two
+        position        = self.animation.easing_fn(completion)
         target_color    = self.calculate_color(position)
         return target_color
 

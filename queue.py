@@ -1,3 +1,5 @@
+import time
+
 class LinkedList:
     def __init__(self):
         self.head = None
@@ -42,27 +44,26 @@ class Node:
 
 
 class Step(Node):
-    def __init__(self, color, length):
+    def __init__(self, color, start_time, length):
         super().__init__()
         self.color = color
         self.length = length
+        self.start_time = start_time
 
     def __repr__(self):
         return self.color
+ 
+now = time.time()
 
 list = LinkedList()
-list.append(Step("FF0000", length=2))
-list.append(Step("00FF00", length=3))
-list.append(Step("0000FF", length=4))
-list.append(Step("FF00FF", length=5))
-wait = list.head.length
-a = None
-for i in range(0, 30):
-    if list.head is not None:
-        print("{0} {1}".format(i, list.head.color))
-        if i >= wait:
-            a = list.remove()
-            if list.head is not None:
-                wait = list.head.length + i
-            print(wait)
-     
+list.append(Step("FF0000", length=2, start_time=now+5))
+list.append(Step("00FF00", length=3, start_time=now+10))
+
+while list.head is not None:
+    now = time.time()
+    head = list.head
+    if(now >= (head.start_time + head.length)):
+        list.remove()
+    if(now >= head.start_time):
+        print(head)
+    

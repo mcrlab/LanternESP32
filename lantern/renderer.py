@@ -1,8 +1,4 @@
-try:
-    from time import ticks_ms
-except (ImportError, ModuleNotFoundError) as e:
-    from mocks import ticks_ms
-
+from .timer import get_current_time
 from .palette import Palette
 from .animation import Animation
 from .color import Color
@@ -10,6 +6,17 @@ from .easing import easings
 from .easing import ElasticEaseOut as default_easing
 
 BLACK = Color(0,0,0)
+
+
+def transform_color(position, start_color, target_color):
+
+    r = start_color.r + ((target_color.r - start_color.r) * position)
+    g = start_color.g + ((target_color.g - start_color.g) * position)
+    b = start_color.b + ((target_color.b - start_color.b) * position)
+
+    color =  Color(r,g,b)
+
+    return color
 
 class Renderer():
     def __init__(self, view, render_interval):
@@ -22,25 +29,20 @@ class Renderer():
         self.view = view
 
     def update_animation(self, data):
-        current_time = ticks_ms()
+        current_time = get_current_time()
 
-        color = Color(0,0,0)
-        color.from_hex(data['color'])
+        target_color = Color(0,0,0)
+        target_color.from_hex(data['color'])
         animation_length = data['time']
         animation_start_time = current_time
 
-        if 'easing' in data:
-            easing = data['easing']
-        else:
-            easing = "ElasticEaseOut"
-
-        self.update(color, animation_start_time, animation_length, easing) 
-
-
-    def update(self, target_color, animation_start_time, animation_length, easing):
         self.animation = Animation(animation_start_time, animation_length)
         self.palette.update(self.current_color, target_color)
-        self.easing = easing
+
+        if 'easing' in data:
+            self.easing = data['easing']
+        else:
+            self.easing = "ElasticEaseOut"
 
     def select_easing_function(self):
         if self.easing in easings:
@@ -48,40 +50,26 @@ class Renderer():
         else:
             return default_easing
 
-    def should_draw(self):
-        return self.current_color is not self.palette.target_color
-
-    def transform_color(self, position):
-        start_color  = self.palette.start_color
-        target_color = self.palette.target_color
-
-        r = start_color.r + ((target_color.r - start_color.r) * position)
-        g = start_color.g + ((target_color.g - start_color.g) * position)
-        b = start_color.b + ((target_color.b - start_color.b) * position)
-
-        color =  Color(r,g,b)
-
-        return color
-
     def calculate_color(self, position):    
         if(position <= 0):
             color_to_render = self.palette.start_color
         elif(position > 0 and position < 1):
-            color_to_render =  self.transform_color(position)
+            color_to_render =  transform_color(position, self.palette.start_color, self.palette.target_color)
         else:
             color_to_render  = self.palette.target_color
-        self.current_color = color_to_render
+        return color_to_render
         
-    def color_to_render(self, now):
-        completion      = self.animation.get_completion(now)
+    def color_to_render(self, current_time):
+        completion      = self.animation.get_completion(current_time)
         easing_function = self.select_easing_function()
         position        = easing_function(completion)
-        self.calculate_color(position)
-        return self.current_color
+        target_color    = self.calculate_color(position)
+        return target_color
 
     def check_and_render(self, current_time):
         if(((current_time - self.last_render_time) > self.render_interval)):
-            if(self.should_draw()):
+            if(self.current_color is not self.palette.target_color):
                 color = self.color_to_render(current_time)
                 self.view.render_color(color)
+                self.current_color = color
                 self.last_render_time = current_time       

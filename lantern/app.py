@@ -10,6 +10,7 @@ from .config_provider import provider
 from binascii import hexlify
 import sys
 from .timer import get_current_time
+from .timer import update_time_offset
 try:
     from machine import unique_id
     from machine import Pin
@@ -71,6 +72,8 @@ class App():
         
         elif "sync" in topic:
             logger.log("sync request")
+            server_time = int(message)
+            update_time_offset(server_time)
             pass
         
         elif "poke" in topic:
@@ -134,32 +137,35 @@ class App():
             self.version = "dev"
 
     def backup(self):
-        logger.log("starting backup sequence")
-        color_int = 0
-        current_time = get_current_time()
-        self.last_update = current_time
-        self.backup_started = current_time
-        config = provider.config
-        while current_time < self.backup_started + config['BACKUP_INTERVAL']:
-            current_time = get_current_time()
-            if (self.last_update + 5000 < current_time):
-                hex = hex_colors[color_int]
-                color = Color(0,0,0)
-                color.from_hex(hex)
-                data = {
-                    "color": color.as_hex(),
-                    "time": 2000
-                }
-                self.renderer.update_animation(data)
-                self.last_update = current_time
-                color_int = color_int + 1
-                if(color_int >= len(hex_colors)):
-                    color_int = 0
-
-            self.renderer.check_and_render(current_time)
-        logger.log("Restarting")
-        self.view.off()
+        logger.warn("error")
         reset()
+    # def backup(self):
+    #     logger.log("starting backup sequence")
+    #     color_int = 0
+    #     current_time = get_current_time()
+    #     self.last_update = current_time
+    #     self.backup_started = current_time
+    #     config = provider.config
+    #     while current_time < self.backup_started + config['BACKUP_INTERVAL']:
+    #         current_time = get_current_time()
+    #         if (self.last_update + 5000 < current_time):
+    #             hex = hex_colors[color_int]
+    #             color = Color(0,0,0)
+    #             color.from_hex(hex)
+    #             data = {
+    #                 "color": color.as_hex(),
+    #                 "time": 2000
+    #             }
+    #             self.renderer.update_animation(data)
+    #             self.last_update = current_time
+    #             color_int = color_int + 1
+    #             if(color_int >= len(hex_colors)):
+    #                 color_int = 0
+
+    #         self.renderer.check_and_render(current_time)
+    #     logger.log("Restarting")
+    #     self.view.off()
+    #     reset()
 
     def subscribe(self):
         logger.log("Subscribing")
@@ -220,7 +226,7 @@ class App():
 
                 if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True
-                    self.renderer.update(Color(0,0,0), current_time, 1000, "ElasticEaseOut")
+                    self.renderer.update_animation({"color": "000000","time": 100})
                     self.last_update = current_time
                     self.ping()
                 else:

@@ -1,5 +1,6 @@
 import time
 import json
+from webbrowser import get
 from .color import Color
 from .renderer import Renderer
 from .colors import hex_colors
@@ -8,27 +9,24 @@ from .logging import logger
 from .config_provider import provider
 from binascii import hexlify
 import sys
-
+from .timer import get_current_time
 try:
     from machine import unique_id
     from machine import Pin
-    from machine import ADC
     from machine import reset
     from machine import deepsleep
     from network import WLAN
-    from time import ticks_ms
+
     from .mqtt import MQTTClient
     from umqtt.simple import MQTTException
     from gc import mem_free
 except (ImportError, ModuleNotFoundError) as e:
     from mocks import unique_id
     from mocks import Broker as MQTTClient    
-    from mocks import Pin 
-    from mocks import ADC   
+    from mocks import Pin  
     from mocks import WLAN
     from mocks import reset
     from mocks import deepsleep
-    from mocks import ticks_ms
     from mocks import MQTTException
     from mocks import mem_free
 
@@ -62,7 +60,7 @@ class App():
         if(type(topic) is bytes):
             topic = topic.decode("utf-8")
         self.paused = False
-        self.last_update = ticks_ms()
+        self.last_update = get_current_time()
         s = topic.split("/")
 
         if "color" in topic:
@@ -138,11 +136,12 @@ class App():
     def backup(self):
         logger.log("starting backup sequence")
         color_int = 0
-        self.last_update = ticks_ms()
-        self.backup_started = ticks_ms()
+        current_time = get_current_time()
+        self.last_update = current_time
+        self.backup_started = current_time
         config = provider.config
-        while ticks_ms() < self.backup_started + config['BACKUP_INTERVAL']:
-            current_time = ticks_ms()
+        while current_time < self.backup_started + config['BACKUP_INTERVAL']:
+            current_time = get_current_time()
             if (self.last_update + 5000 < current_time):
                 hex = hex_colors[color_int]
                 color = Color(0,0,0)
@@ -151,13 +150,13 @@ class App():
                     "color": color.as_hex(),
                     "time": 2000
                 }
-                self.update_animation(data)
+                self.renderer.update_animation(data)
                 self.last_update = current_time
                 color_int = color_int + 1
                 if(color_int >= len(hex_colors)):
                     color_int = 0
 
-            self.renderer.check_and_render(current_time, config['RENDER_INTERVAL'])
+            self.renderer.check_and_render(current_time)
         logger.log("Restarting")
         self.view.off()
         reset()
@@ -211,13 +210,13 @@ class App():
             self.connect()
             
             self.view.off()
-            self.last_update = ticks_ms()
+            self.last_update = get_current_time()
 
             sleep_interval = config['SLEEP_INTERVAL']
             
 
             while True:
-                current_time = ticks_ms()
+                current_time = get_current_time()
 
                 if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True

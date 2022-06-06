@@ -1,0 +1,50 @@
+{
+ "loop": true,
+ "sequence" : [
+        {
+            "color":"FFFFFF",
+            "time": 1000,
+            "ticks": 0
+        },
+        {
+            "color":"B80000",
+            "time": 1000,
+            "ticks": 1000
+        },
+        {
+            "color":"DB3E00",
+            "time": 1000,
+            "ticks": 2000
+        },
+        {
+            "color":"FCCB00",
+            "time": 1000,
+            "ticks": 3000
+        },
+        {
+            "color":"008B02",
+            "time": 1000,
+            "ticks": 4000
+        },
+        {
+            "color":"006B76",
+            "time": 1000,
+            "ticks": 5000
+        },
+        {
+            "color":"1273DE",
+            "time": 1000,
+            "ticks": 6000
+        },
+        {
+            "color":"004DCF",
+            "time": 1000,
+            "ticks": 7000
+        },
+        {
+            "color":"5300EB",
+            "time": 1000,
+            "ticks": 8000
+        }
+    ]
+}

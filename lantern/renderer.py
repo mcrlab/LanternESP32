@@ -10,17 +10,20 @@ class Renderer():
         self.render_interval = render_interval
         self.view = view
         self.animation = None
+        
 
     def update_animation(self, animation):
         self.animation = animation 
 
-    def check_and_render(self, current_time):
+    def render(self, current_time):
         if self.animation is None:
             return
 
         if(((current_time - self.last_render_time) > self.render_interval)):
-            if(self.current_color is not self.animation.palette.target_color):
-                color = self.animation.color_to_render(current_time)
-                self.view.render_color(color)
-                self.current_color = color
-                self.last_render_time = current_time       
+            color = self.animation.color_to_render(current_time, self.render_interval)
+            self.view.render_color(color)
+            self.current_color = color
+            self.last_render_time = current_time       
+    
+    def render_color(self, color):
+        self.view.render_color(color)

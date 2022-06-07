@@ -13,6 +13,8 @@ from binascii import hexlify
 import sys
 from .timer import get_current_time
 from .timer import update_time_offset
+from .queue import LinkedList
+
 try:
     from machine import unique_id
     from machine import Pin
@@ -58,6 +60,7 @@ class App():
 
         self.version = ""
         self.paused = False   
+        self.animation_list = LinkedList()
 
     def subscription_callback(self, topic, message):
         if(type(topic) is bytes):
@@ -77,7 +80,11 @@ class App():
             palette = Palette(self.renderer.current_color, target_color)
 
             animation_length = data['time']
-            animation_start_time = current_time
+
+            if 'start_time' in data:
+                animation_start_time = data['start_time']
+            else:
+                animation_start_time = current_time
 
             if 'easing' in data:
                 easing = data['easing']
@@ -85,9 +92,9 @@ class App():
                 easing = "ElasticEaseOut"
 
             animation = Animation(animation_start_time, animation_length, easing, palette)
-
-            self.renderer.update_animation(animation)
-            self.ping()
+            if self.animation_list.head is None:
+                self.renderer.update_animation(animation)
+            self.animation_list.append(animation)
         
         elif "sync" in topic:
             logger.log("sync request")
@@ -183,7 +190,7 @@ class App():
                 if(color_int >= len(hex_colors)):
                     color_int = 0
 
-            self.renderer.check_and_render(current_time)
+            self.renderer.render(current_time)
 
         logger.log("Restarting")
         self.view.off()
@@ -245,6 +252,7 @@ class App():
 
             while True:
                 current_time = get_current_time()
+                self.renderer.render(current_time)
 
                 if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True
@@ -259,11 +267,24 @@ class App():
                     self.last_update = current_time
                     self.ping()
                 else:
-                    self.renderer.check_and_render(current_time)
+
+                    current_animation = self.animation_list.head
+                    if current_animation is not None and (current_animation.is_complete(current_time, self.renderer.render_interval)):
+                        start_color = current_animation.get_target_color()
+                        self.animation_list.remove()
+                        self.renderer.render_color(start_color)
+                        logger.log("removing")
+                        new_animation = self.animation_list.head
+                        if new_animation is not None:
+                            new_animation.set_start_color(start_color)
+                        self.renderer.update_animation(new_animation)
+                        self.last_update = current_time
+                        self.ping()
+                        
 
                 self.broker.check_msg()
                         
-        except (TypeError, OSError, MQTTException) as e:
+        except (TypeError, OSError, Exception, MQTTException) as e:
             logger.warn(e)
             self.backup()
         except(KeyboardInterrupt) as e:

@@ -1,6 +1,8 @@
 import time
 import json
-from webbrowser import get
+import traceback
+from .palette import Palette
+from .animation import Animation
 from .color import Color
 from .renderer import Renderer
 from .colors import hex_colors
@@ -67,7 +69,25 @@ class App():
         if "color" in topic:
             logger.log("Color update")
             data = json.loads(message)
-            self.renderer.update_animation(data)
+
+            current_time = get_current_time()
+
+            target_color = Color(0,0,0)
+            target_color.from_hex(data['color'])
+
+            palette = Palette(self.renderer.current_color, target_color)
+
+            animation_length = data['time']
+            animation_start_time = current_time
+
+            if 'easing' in data:
+                easing = data['easing']
+            else:
+                easing = "ElasticEaseOut"
+
+            animation = Animation(animation_start_time, animation_length, easing, palette)
+
+            self.renderer.update_animation(animation)
             self.ping()
         
         elif "sync" in topic:
@@ -226,16 +246,24 @@ class App():
 
                 if ((self.last_update + sleep_interval < current_time) and not self.paused):
                     self.paused = True
-                    self.renderer.update_animation({"color": "000000","time": 100})
+
+                    target_color = Color(0,0,0)
+                    palette = Palette(self.renderer.current_color, target_color)
+                    animation_start_time = current_time
+                    animation_length = 100
+                    easing = "ElasticEaseOut"
+                    animation = Animation(animation_start_time, animation_length, easing, palette)
+                    self.renderer.update_animation(animation)
                     self.last_update = current_time
                     self.ping()
                 else:
                     self.renderer.check_and_render(current_time)
 
                 self.broker.check_msg()
-                    
-        except (TypeError, OSError, Exception, MQTTException) as e:
+                        
+        except (TypeError, OSError, MQTTException) as e:
             logger.warn(e)
+            traceback.print_tb(e.__traceback__)
             self.backup()
         except(KeyboardInterrupt) as e:
             self.view.off()

@@ -13,12 +13,6 @@ class Color():
         self.g = test(int(g))
         self.b = test(int(b))
 
-    def from_hex(self, hex):
-        self.r = int(hex[0:2], 16)
-        self.g = int(hex[2:4], 16)
-        self.b = int(hex[4:6], 16)
-
-
     def normalise(self, maximum_brightness):
         total = self.r + self.g + self.b
         if (total > maximum_brightness):
@@ -43,3 +37,10 @@ class Color():
         if (isinstance(other, Color)):
             return self.r == other.r and self.g == other.g and self.b == other.b
         return False
+
+class HexColor(Color):
+    def __init__(self, hex):
+        r = int(hex[0:2], 16)
+        g = int(hex[2:4], 16)
+        b = int(hex[4:6], 16)
+        super().__init__(r, g, b)

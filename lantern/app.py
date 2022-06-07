@@ -1,9 +1,9 @@
 import time
 import json
-import traceback
 from .palette import Palette
 from .animation import Animation
 from .color import Color
+from .color import HexColor
 from .renderer import Renderer
 from .colors import hex_colors
 from .view import View
@@ -72,8 +72,7 @@ class App():
 
             current_time = get_current_time()
 
-            target_color = Color(0,0,0)
-            target_color.from_hex(data['color'])
+            target_color = HexColor(data['color'])
 
             palette = Palette(self.renderer.current_color, target_color)
 
@@ -157,35 +156,38 @@ class App():
             self.version = "dev"
 
     def backup(self):
-        logger.warn("error")
-        reset()
-    # def backup(self):
-    #     logger.log("starting backup sequence")
-    #     color_int = 0
-    #     current_time = get_current_time()
-    #     self.last_update = current_time
-    #     self.backup_started = current_time
-    #     config = provider.config
-    #     while current_time < self.backup_started + config['BACKUP_INTERVAL']:
-    #         current_time = get_current_time()
-    #         if (self.last_update + 5000 < current_time):
-    #             hex = hex_colors[color_int]
-    #             color = Color(0,0,0)
-    #             color.from_hex(hex)
-    #             data = {
-    #                 "color": color.as_hex(),
-    #                 "time": 2000
-    #             }
-    #             self.renderer.update_animation(data)
-    #             self.last_update = current_time
-    #             color_int = color_int + 1
-    #             if(color_int >= len(hex_colors)):
-    #                 color_int = 0
+        logger.log("starting backup sequence")
+        color_int = 0
+        current_time = get_current_time()
+        self.last_update = current_time
+        self.backup_started = current_time
+        config = provider.config
+        while current_time < self.backup_started + config['BACKUP_INTERVAL']:
+            current_time = get_current_time()
+            if (self.last_update + 5000 < current_time):
+                hex = hex_colors[color_int]
+                target_color = HexColor(hex)
 
-    #         self.renderer.check_and_render(current_time)
-    #     logger.log("Restarting")
-    #     self.view.off()
-    #     reset()
+                palette = Palette(self.renderer.current_color, target_color)
+
+                animation_length = 1000
+                animation_start_time = current_time
+                easing = "ElasticEaseOut"
+
+                animation = Animation(animation_start_time, animation_length, easing, palette)
+
+                self.renderer.update_animation(animation)
+
+                self.last_update = current_time
+                color_int = color_int + 1
+                if(color_int >= len(hex_colors)):
+                    color_int = 0
+
+            self.renderer.check_and_render(current_time)
+
+        logger.log("Restarting")
+        self.view.off()
+        reset()
 
     def subscribe(self):
         logger.log("Subscribing")
@@ -263,7 +265,6 @@ class App():
                         
         except (TypeError, OSError, MQTTException) as e:
             logger.warn(e)
-            traceback.print_tb(e.__traceback__)
             self.backup()
         except(KeyboardInterrupt) as e:
             self.view.off()

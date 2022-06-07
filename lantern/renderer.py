@@ -1,6 +1,3 @@
-from .timer import get_current_time
-from .palette import Palette
-from .animation import Animation
 from .color import Color
 
 BLACK = Color(0,0,0)

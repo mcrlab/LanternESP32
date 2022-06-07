@@ -2,7 +2,6 @@ from .easing import easings
 from .easing import ElasticEaseOut as default_easing
 from .color import Color
 
-
 def transform_color(position, start_color, target_color):
 
     r = start_color.r + ((target_color.r - start_color.r) * position)
@@ -12,7 +11,6 @@ def transform_color(position, start_color, target_color):
     color =  Color(r,g,b)
 
     return color
-
 
 class Animation():
     def __init__(self, start_time, length, easing, palette):
@@ -36,13 +34,13 @@ class Animation():
         return color_to_render
         
     def color_to_render(self, current_time):
-        completion      = self.get_completion(current_time)
+        completion      = self.get_percent_complete(current_time)
         position        = self.easing_fn(completion)
         target_color    = self.calculate_color(position)
         return target_color
 
 
-    def get_completion(self, current_time):
+    def get_percent_complete(self, current_time):
         elapsed_time = current_time - self.start_time
         if(current_time < self.start_time):
             return 0

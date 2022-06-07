@@ -10,12 +10,6 @@ class LinkedList:
             yield node
             node = node.next
 
-    def __repr__(self):
-        nodes = []
-        for node in self:
-            nodes.append(node.color)
-        return " -> ".join(nodes)
-
     def append(self, node):
         if self.head == None:
             self.head = node
@@ -53,17 +47,19 @@ class Step(Node):
     def __repr__(self):
         return self.color
  
-now = time.time()
-
-list = LinkedList()
-list.append(Step("FF0000", length=2, start_time=now+5))
-list.append(Step("00FF00", length=3, start_time=now+10))
-
-while list.head is not None:
+def run():
     now = time.time()
-    head = list.head
-    if(now >= (head.start_time + head.length)):
-        list.remove()
-    if(now >= head.start_time):
-        print(head)
-    
+
+    list = LinkedList()
+    list.append(Step("FF0000", length=2, start_time=now+5))
+    list.append(Step("00FF00", length=3, start_time=now+10))
+
+    while list.head is not None:
+        now = time.time()
+        head = list.head
+        if(now >= (head.start_time + head.length)):
+            list.remove()
+        if(now >= head.start_time):
+            print(head)
+if __name__ == '__main__':
+    run()    

@@ -1,3 +1,4 @@
+from .logging import logger
 try:
     from time import ticks_ms
 except (ImportError, ModuleNotFoundError) as e:
@@ -6,11 +7,21 @@ except (ImportError, ModuleNotFoundError) as e:
 timer_offset = 0
 last_time_sync = 0
 
-def get_current_time():
+def get_local_time():
     internal_clock = ticks_ms()
     return internal_clock
 
+def get_server_time():
+    global timer_offset
+    now = get_local_time()
+    return now - timer_offset
+
 def update_time_offset(server_time):
+    global timer_offset
     internal_time = ticks_ms()
-    last_time_sync = internal_time
     timer_offset = internal_time - server_time
+
+    logger.log("internal time is {0}".format(internal_time))
+    logger.log("server time is {0}".format(server_time))
+    logger.log("timer offset is {0}".format(timer_offset))
+    logger.log("adjusted local time is {0}".format(get_server_time()))

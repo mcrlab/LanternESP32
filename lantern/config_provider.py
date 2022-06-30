@@ -7,6 +7,7 @@ class ConfigProvider():
         pass
  
     def load_config(self):
+        data = None
         try:
             f = open("config.json", "r")
             data = json.loads(f.read())

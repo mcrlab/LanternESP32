@@ -37,7 +37,7 @@ class App():
        
         config = provider.config
 
-        if config['DEBUG']:
+        if config['LOGGING']:
             logger.enable()
 
         if id is None:

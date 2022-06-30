@@ -18,6 +18,8 @@ class Renderer():
     def render(self, current_time):
         if self.animation is None:
             return
+        if current_time < self.animation.start_time:
+            return
 
         if(((current_time - self.last_render_time) > self.render_interval)):
             color = self.animation.color_to_render(current_time, self.render_interval)
@@ -27,3 +29,4 @@ class Renderer():
     
     def render_color(self, color):
         self.view.render_color(color)
+        self.current_color = color

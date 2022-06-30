@@ -26,7 +26,6 @@ class LinkedList:
         self.head = self.head.next
         return temp
 
-
 class Node:
     def __init__(self):
         self.next = None

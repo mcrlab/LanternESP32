@@ -20,8 +20,3 @@ def update_time_offset(server_time):
     global timer_offset
     internal_time = ticks_ms()
     timer_offset = internal_time - server_time
-
-    logger.log("internal time is {0}".format(internal_time))
-    logger.log("server time is {0}".format(server_time))
-    logger.log("timer offset is {0}".format(timer_offset))
-    logger.log("adjusted local time is {0}".format(get_server_time()))

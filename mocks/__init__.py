@@ -65,6 +65,9 @@ class Pin:
     def __init__(self, pin_number, direction=OUT):    
         pass
 
+    def value(self, value):
+        pass
+
 class ADC:
     def __init__(self, pin):
         pass

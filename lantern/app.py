@@ -14,6 +14,7 @@ import sys
 from .timer import get_local_time, get_server_time
 from .timer import update_time_offset
 from .queue import LinkedList
+from math import ceil
 
 try:
     from machine import unique_id
@@ -44,6 +45,9 @@ class App():
 
         if config['LOGGING']:
             logger.enable()
+            self.debug_mode = True
+        else:
+            self.debug_mode = False
 
         if id is None:
             self.id = hexlify(unique_id()).decode()
@@ -61,6 +65,7 @@ class App():
         self.version = ""
         self.paused = False   
         self.animation_list = LinkedList()
+        self.debug_pin = Pin(15, Pin.OUT)
 
     def subscription_callback(self, topic, message):
         if(type(topic) is bytes):
@@ -83,8 +88,6 @@ class App():
 
             if 'start_time' in data:
                 animation_start_time = data['start_time']
-                logger.log('using start time {0}'.format(animation_start_time))
-                logger.log('server time is {0}'.format(get_server_time()))
             else:
                 animation_start_time = local_time
 
@@ -216,7 +219,6 @@ class App():
         self.broker.subscribe("sleep")
         self.broker.subscribe("sleep/"+self.id)
 
-
     
     def connect_to_wifi(self, config):
         wlan = WLAN(0)
@@ -239,19 +241,17 @@ class App():
             config = provider.config
             self.updater.download_and_install_update_if_available(config['SSID'], config['PASSWORD'])
             logger.log("Starting app")
-            logger.log(self.id)
+            logger.log("ID {0}".format(self.id))
             self.set_version()
             self.connect_to_wifi(config)
             self.broker.connect()
             self.subscribe()
             self.connect()
             
-            self.view.off()
+           # self.view.off()
             self.last_update = get_local_time()
-
             sleep_interval = config['SLEEP_INTERVAL']
             
-
             while True:
                 local_time = get_local_time()
                 server_time = get_server_time()
@@ -288,6 +288,9 @@ class App():
                         
 
                 self.broker.check_msg()
+
+                if self.debug_mode:
+                    self.debug_pin.value((ceil(server_time/1000) % 2 == 0))
                         
         except (TypeError, OSError, Exception, MQTTException) as e:
             logger.warn(e)

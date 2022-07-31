@@ -79,6 +79,9 @@ class App():
             data = json.loads(message)
 
             local_time = get_local_time()
+            if 'current_time' in data:
+                server_time = int(data['current_time'])
+                update_time_offset(server_time)
 
             target_color = HexColor(data['color'])
 
@@ -278,7 +281,7 @@ class App():
                         start_color = current_animation.get_target_color()
                         self.animation_list.remove()
                         self.renderer.render_color(start_color)
-                        logger.log("removing")
+                        logger.log("removing animation from queue")
                         new_animation = self.animation_list.head
                         if new_animation is not None:
                             new_animation.set_start_color(start_color)

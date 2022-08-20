@@ -45,6 +45,8 @@ class App():
 
         if config['LOGGING']:
             logger.enable()
+
+        if config['DEBUG']:
             self.debug_mode = True
         else:
             self.debug_mode = False

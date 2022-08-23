@@ -57,7 +57,7 @@ class App():
             self.id = id
 
         self.broker = MQTTClient(self.id, config['MQTT_SERVER'], config['MQTT_PORT'], config['MQTT_USER'], config['MQTT_PASSWORD'])
-        self.broker.DEBUG = True
+        self.broker.DEBUG = False
         self.broker.set_callback(self.subscription_callback)
 
 
@@ -152,6 +152,7 @@ class App():
             "color" : self.renderer.current_color.as_hex(),
             "memory": mem_free()
             })
+        logger.log("ping")
         self.broker.publish("ping", update)
 
     def connect(self):
@@ -162,6 +163,7 @@ class App():
             "platform": sys.platform,
             "config": provider.config
             })
+        logger.log("connecting")
         self.broker.publish("connect", update)
 
     def set_version(self):
@@ -289,7 +291,7 @@ class App():
                             new_animation.set_start_color(start_color)
                         self.renderer.update_animation(new_animation)
                         self.last_update = local_time
-                        self.ping()
+                        #self.ping()
                         
 
                 self.broker.check_msg()

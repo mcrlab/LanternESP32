@@ -69,6 +69,33 @@ class App():
         self.animation_list = LinkedList()
         self.debug_pin = Pin(15, Pin.OUT)
 
+    def update_animation(self, data):
+        local_time = get_local_time()
+        if 'current_time' in data:
+            server_time = int(data['current_time'])
+            update_time_offset(server_time)
+
+        target_color = HexColor(data['color'])
+
+        palette = Palette(self.renderer.current_color, target_color)
+
+        animation_length = data['time']
+
+        if 'start_time' in data:
+            animation_start_time = data['start_time']
+        else:
+            animation_start_time = local_time
+
+        if 'easing' in data:
+            easing = data['easing']
+        else:
+            easing = "ElasticEaseOut"
+
+        animation = Animation(animation_start_time, animation_length, easing, palette)
+        if self.animation_list.head is None:
+            self.renderer.update_animation(animation)
+        self.animation_list.append(animation)
+
     def subscription_callback(self, topic, message):
         if(type(topic) is bytes):
             topic = topic.decode("utf-8")
@@ -78,34 +105,24 @@ class App():
 
         if "color" in topic:
             logger.log("Color update")
-            data = json.loads(message)
-
-            local_time = get_local_time()
-            if 'current_time' in data:
-                server_time = int(data['current_time'])
-                update_time_offset(server_time)
-
-            target_color = HexColor(data['color'])
-
-            palette = Palette(self.renderer.current_color, target_color)
-
-            animation_length = data['time']
-
-            if 'start_time' in data:
-                animation_start_time = data['start_time']
-            else:
-                animation_start_time = local_time
-
-            if 'easing' in data:
-                easing = data['easing']
-            else:
-                easing = "ElasticEaseOut"
-
-            animation = Animation(animation_start_time, animation_length, easing, palette)
-            if self.animation_list.head is None:
-                self.renderer.update_animation(animation)
-            self.animation_list.append(animation)
+            animation_data = json.loads(message)
+            logger.log(message)
+            self.update_animation(animation_data)
         
+        elif "frame" in topic:
+            if self.id in message:
+                logger.log("Frame update")
+                logger.log(message)
+                data = json.loads(message)
+                for instruction in data:
+                    if instruction['address'] == self.id:            
+                        animation_data = instruction
+                        self.update_animation(instruction)
+                #update animation here
+            else:
+                # frame message not for us
+                pass    
+
         elif "sync" in topic:
             logger.log("sync request")
             server_time = int(message)
@@ -213,6 +230,8 @@ class App():
         self.broker.subscribe("sync")
         self.broker.subscribe("poke")
         self.broker.subscribe("color/"+self.id)
+
+        self.broker.subscribe("frame")
 
         self.broker.subscribe("update")
         self.broker.subscribe("update/"+self.id)

@@ -107,7 +107,9 @@ class App():
             logger.log("Color update")
             animation_data = json.loads(message)
             logger.log(message)
-            self.update_animation(animation_data)
+            self.renderer.render_color(HexColor(data['color']))
+
+            #self.update_animation(animation_data)
         
         elif "frame" in topic:
             if self.id in message:
@@ -116,8 +118,9 @@ class App():
                 data = json.loads(message)
                 for instruction in data:
                     if instruction['address'] == self.id:            
-                        animation_data = instruction
-                        self.update_animation(instruction)
+                        self.renderer.render_color(HexColor(instruction['color']))
+
+                        #self.update_animation(instruction)
                 #update animation here
             else:
                 # frame message not for us
@@ -279,38 +282,38 @@ class App():
             sleep_interval = config['SLEEP_INTERVAL']
             
             while True:
-                local_time = get_local_time()
+                #local_time = get_local_time()
                 server_time = get_server_time()
 
-                if not self.paused:
-                    self.renderer.render(server_time)
+                # if not self.paused:
+                #     self.renderer.render(server_time)
 
-                if ((self.last_update + sleep_interval < local_time) and not self.paused):
-                    self.paused = True
+                # if ((self.last_update + sleep_interval < local_time) and not self.paused):
+                #     self.paused = True
 
-                    target_color = Color(0,0,0)
-                    palette = Palette(self.renderer.current_color, target_color)
-                    animation_start_time = local_time
-                    animation_length = 100
-                    easing = "ElasticEaseOut"
-                    animation = Animation(animation_start_time, animation_length, easing, palette)
-                    self.renderer.update_animation(animation)
-                    self.last_update = local_time
-                    self.ping()
-                else:
+                #     target_color = Color(0,0,0)
+                #     palette = Palette(self.renderer.current_color, target_color)
+                #     animation_start_time = local_time
+                #     animation_length = 100
+                #     easing = "ElasticEaseOut"
+                #     animation = Animation(animation_start_time, animation_length, easing, palette)
+                #     self.renderer.update_animation(animation)
+                #     self.last_update = local_time
+                #     self.ping()
+                # else:
 
-                    current_animation = self.animation_list.head
-                    if current_animation is not None and (current_animation.is_complete(server_time, self.renderer.render_interval)):
-                        start_color = current_animation.get_target_color()
-                        self.animation_list.remove()
-                        self.renderer.render_color(start_color)
-                        logger.log("removing animation from queue")
-                        new_animation = self.animation_list.head
-                        if new_animation is not None:
-                            new_animation.set_start_color(start_color)
-                        self.renderer.update_animation(new_animation)
-                        self.last_update = local_time
-                        #self.ping()
+                #     current_animation = self.animation_list.head
+                #     if current_animation is not None and (current_animation.is_complete(server_time, self.renderer.render_interval)):
+                #         start_color = current_animation.get_target_color()
+                #         self.animation_list.remove()
+                #         self.renderer.render_color(start_color)
+                #         logger.log("removing animation from queue")
+                #         new_animation = self.animation_list.head
+                #         if new_animation is not None:
+                #             new_animation.set_start_color(start_color)
+                #         self.renderer.update_animation(new_animation)
+                #         self.last_update = local_time
+                #         #self.ping()
                         
 
                 self.broker.check_msg()

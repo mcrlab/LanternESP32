@@ -105,7 +105,7 @@ class App():
 
         if "color" in topic:
             logger.log("Color update")
-            animation_data = json.loads(message)
+            data = json.loads(message)
             logger.log(message)
             self.renderer.render_color(HexColor(data['color']))
 

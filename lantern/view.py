@@ -9,14 +9,10 @@ class View():
     def __init__(self, pin, number_of_pixels):
         self.number_of_pixels = number_of_pixels
         self.np = NeoPixel(pin, self.number_of_pixels)  
+        self.current_color = Color(0,0,0)
         
-    def render_buffer(self, color_buffer):
-        for i in range(len(color_buffer)):
-            self.np[i] = color_buffer[i].as_instruction()
-        
-        self.np.write()
-
     def render_color(self, color):
+        self.current_color = color
         for i in range(self.number_of_pixels):
             self.np[i] = color.as_instruction()
         self.np.write()

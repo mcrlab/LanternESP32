@@ -149,7 +149,7 @@ class App():
         wlan.active(True)
         time.sleep(1.0)
         if not wlan.isconnected():
-            logger.log('Connecting to network...')
+            logger.log('Connecting to {0}'.format(config['SSID']))
             wlan.connect(config['SSID'], config['PASSWORD'])
             while not wlan.isconnected():    
                 time.sleep(1.0)
@@ -177,6 +177,9 @@ class App():
         except (TypeError, OSError, Exception, MQTTException) as e:
             logger.warn(e)
         except(KeyboardInterrupt) as e:
-            self.view.off()
             logger.log("Exiting")
             pass
+        finally:
+            self.view.off()
+            time.sleep(30)
+            reset()

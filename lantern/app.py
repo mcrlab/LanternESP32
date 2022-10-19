@@ -164,7 +164,7 @@ class App():
         try:
             config = provider.config
             self.updater.download_and_install_update_if_available(config['SSID'], config['PASSWORD'])
-            logger.log("Starting app")
+            logger.log("Starting app V:{0}".format(self.version))
             logger.log("ID {0}".format(self.id))
             self.connect_to_wifi(config)
             self.broker.connect()
@@ -173,6 +173,7 @@ class App():
             
             while True:        
                 self.broker.check_msg()
+                self.view.render()
                         
         except (TypeError, OSError, Exception, MQTTException) as e:
             logger.warn(e)

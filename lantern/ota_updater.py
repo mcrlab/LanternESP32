@@ -1,7 +1,4 @@
-# 1000 x dank aan Evelien die mijn in deze tijden gesteund heeft
-# ohja, en er is ook nog tante suker (Jana Dej.) die graag kinderen wilt maar het zelf nog niet beseft
-
-import usocket
+import socket
 import os
 import gc
 import machine
@@ -10,11 +7,15 @@ from .logging import logger
 
 class OTAUpdater:
 
-    def __init__(self, github_repo, module='', main_dir='main'):
+    def __init__(self, github_repo, module='', main_dir='main', proxy=''):
         self.http_client = HttpClient()
-        self.github_repo = github_repo.rstrip('/').replace('https://github.com', 'https://api.github.com/repos')
+        if proxy:
+            self.github_repo = github_repo.rstrip('/').replace('https://github.com', proxy+'/repos')
+        else:
+            self.github_repo = github_repo.rstrip('/').replace('https://github.com', 'https://api.github.com/repos')
         self.main_dir = main_dir
         self.module = module.rstrip('/')
+        self.proxy = proxy
 
     @staticmethod
     def using_network(ssid, password):
@@ -94,6 +95,7 @@ class OTAUpdater:
         return False
 
     def rmtree(self, directory):
+        logger.log("Removing tree")
         for entry in os.ilistdir(directory):
             is_dir = entry[1] == 0x4000
             if is_dir:
@@ -112,12 +114,15 @@ class OTAUpdater:
         return '0.0'
 
     def get_latest_version(self):
+        logger.log("Fetching latest release")
+        logger.log(self.github_repo + '/releases/latest')
         latest_release = self.http_client.get(self.github_repo + '/releases/latest')
         version = latest_release.json()['tag_name']
         latest_release.close()
         return version
 
     def download_all_files(self, root_url, version):
+        logger.log("Fetching all files")
         file_list = self.http_client.get(root_url + '?ref=refs/tags/' + version)
         for file in file_list.json():
             if file['type'] == 'file':
@@ -132,7 +137,11 @@ class OTAUpdater:
         file_list.close()
 
     def download_file(self, url, path):
+        if self.proxy:
+            url = url.replace("https://raw.githubusercontent.com", self.proxy)
+
         logger.log('\tDownloading: '+ path)
+        logger.log('\tURL: '+ url)
         with open(path, 'w') as outfile:
             try:
                 response = self.http_client.get(url)
@@ -198,12 +207,9 @@ class HttpClient:
             host, port = host.split(':', 1)
             port = int(port)
 
-        ai = usocket.getaddrinfo(host, port, 0, usocket.SOCK_STREAM)
-        ai = ai[0]
-
-        s = usocket.socket(ai[0], ai[1], ai[2])
+        s = socket.socket()
         try:
-            s.connect(ai[-1])
+            s.connect(socket.getaddrinfo(host,port)[0][-1])
             if proto == 'https:':
                 s = ussl.wrap_socket(s, server_hostname=host)
             s.write(b'%s /%s HTTP/1.0\r\n' % (method, path))

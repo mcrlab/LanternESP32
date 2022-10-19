@@ -16,6 +16,9 @@ class View():
         for i in range(self.number_of_pixels):
             self.np[i] = color.as_instruction()
         self.np.write()
+        
+    def render(self):
+        pass
 
     def off(self):
         self.render_color(Color(0,0,0))

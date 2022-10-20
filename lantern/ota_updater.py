@@ -2,10 +2,12 @@ import socket
 import os
 import gc
 from .logging import logger
-import requests
+
 try:
     from machine import reset
+    import urequests as requests
 except (ImportError, ModuleNotFoundError) as e:
+    import requests
     from mocks import reset
 
 

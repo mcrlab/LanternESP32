@@ -5,6 +5,7 @@ from .view import View
 from .logging import logger
 from .config_provider import provider
 from binascii import hexlify
+from .ota_updater import OTAUpdater
 import sys
 
 try:
@@ -27,11 +28,12 @@ except (ImportError, ModuleNotFoundError) as e:
     from mocks import MQTTException
 
 class App():
-    def __init__(self, updater, id=None):
+    def __init__(self, id=None):
         
-        self.updater = updater
-       
         config = provider.config
+
+        self.updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', module='./', main_dir='lantern', proxy="http://pi4.local")
+    
 
         if config['LOGGING']:
             logger.enable()
@@ -163,10 +165,11 @@ class App():
 
         try:
             config = provider.config
-            self.updater.download_and_install_update_if_available(config['SSID'], config['PASSWORD'])
+            
             logger.log("Starting app V:{0}".format(self.version))
             logger.log("ID {0}".format(self.id))
             self.connect_to_wifi(config)
+            self.updater.download_and_install_update_if_available()
             self.broker.connect()
             self.subscribe()
             self.register()
@@ -174,7 +177,6 @@ class App():
             while True:        
                 self.broker.check_msg()
                 self.view.render()
-                        
         except (TypeError, OSError, Exception, MQTTException) as e:
             logger.warn(e)
         except(KeyboardInterrupt) as e:
@@ -182,5 +184,4 @@ class App():
             pass
         finally:
             self.view.off()
-            time.sleep(30)
             reset()

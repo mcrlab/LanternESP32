@@ -112,7 +112,7 @@ class WLAN():
         pass
 
     def ifconfig(self):
-        return "ip config"
+        return ("127.0.0.1", "127.0.0.1", "127.0.0.1")
 
 
 class NeoPixel(dict):

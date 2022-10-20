@@ -32,7 +32,7 @@ class App():
         
         config = provider.config
 
-        self.updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', module='./', main_dir='lantern', proxy="http://192.168.8.219")
+        self.updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', module='./', main_dir='lantern', proxy=config['PROXY_SERVER'])
     
 
         if config['LOGGING']:

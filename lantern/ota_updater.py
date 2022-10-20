@@ -99,8 +99,8 @@ class OTAUpdater:
             os.rmdir(directory)
         except AttributeError:
             for entry in os.listdir(directory):
-                is_dir = entry[1] == 0x4000
-                if os.path.is_dir(entry):
+
+                if os.path.isdir(entry):
                     self.rmtree(directory + '/' + entry)
 
                 else:

@@ -28,7 +28,7 @@ except (ImportError, ModuleNotFoundError) as e:
     from mocks import MQTTException
 
 class App():
-    def __init__(self, id=None):
+    def __init__(self, udpater=None, id=None):
         
         config = provider.config
 

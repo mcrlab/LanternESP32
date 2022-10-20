@@ -84,17 +84,28 @@ class OTAUpdater:
 
             return True
         return False
-
+    
     def rmtree(self, directory):
         logger.log("Removing tree: " + directory)
-        for entry in os.listdir(directory):
-            is_dir = entry[1] == 0x4000
-            if is_dir:
-                self.rmtree(directory + '/' + entry[0])
 
-            else:
-                os.remove(directory + '/' + entry[0])
-        os.rmdir(directory)
+        try:
+            for entry in os.ilistdir(directory):
+                is_dir = entry[1] == 0x4000
+                if is_dir:
+                    self.rmtree(directory + '/' + entry[0])
+
+                else:
+                    os.remove(directory + '/' + entry[0])
+            os.rmdir(directory)
+        except AttributeError:
+            for entry in os.listdir(directory):
+                is_dir = entry[1] == 0x4000
+                if os.path.is_dir(entry):
+                    self.rmtree(directory + '/' + entry)
+
+                else:
+                    os.remove(directory + '/' + entry)
+            os.rmdir(directory)
 
     def get_version(self, directory, version_file_name='.version'):
         if version_file_name in os.listdir(directory):

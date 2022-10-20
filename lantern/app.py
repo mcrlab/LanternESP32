@@ -32,7 +32,7 @@ class App():
         
         config = provider.config
 
-        self.updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', module='./', main_dir='lantern', proxy="http://pi4.local")
+        self.updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', module='./', main_dir='lantern', proxy="http://192.168.8.219")
     
 
         if config['LOGGING']:
@@ -184,4 +184,6 @@ class App():
             pass
         finally:
             self.view.off()
+            logger.log("sleeping")
+            time.sleep(10)
             reset()

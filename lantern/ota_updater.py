@@ -120,14 +120,15 @@ class OTAUpdater:
     def get_latest_version(self):
         logger.log("Fetching latest release")
         logger.log(self.github_repo + '/releases/latest')
-        latest_release = requests.get(self.github_repo + '/releases/latest')
+        latest_release = requests.get(self.github_repo + '/releases/latest', headers = {'User-Agent': 'My User Agent 1.0'})
+        logger.log(latest_release.text)
         version = latest_release.json()['tag_name']
         latest_release.close()
         return version
 
     def download_all_files(self, root_url, version):
         logger.log("Fetching all files")
-        file_list = requests.get(root_url + '?ref=refs/tags/' + version)
+        file_list = requests.get(root_url + '?ref=refs/tags/' + version, headers = {'User-Agent': 'My User Agent 1.0'})
         for file in file_list.json():
             if file['type'] == 'file':
                 download_url = file['download_url']
@@ -148,7 +149,7 @@ class OTAUpdater:
         logger.log('\tURL: '+ url)
         with open(path, 'w') as outfile:
             try:
-                response = requests.get(url)
+                response = requests.get(url, headers = {'User-Agent': 'My User Agent 1.0'})
                 outfile.write(response.text)
             finally:
                 response.close()

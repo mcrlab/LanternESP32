@@ -27,6 +27,10 @@ except (ImportError, ModuleNotFoundError) as e:
     from mocks import deepsleep
     from mocks import MQTTException
 
+RED = HexColor("FF0000")
+GREEN = HexColor("00FF00")
+BLUE = HexColor("0000FF")
+
 class App():
     def __init__(self, udpater=None, id=None):
         
@@ -61,18 +65,6 @@ class App():
             logger.log(message)
             self.view.render_color(HexColor(data['color']))
         
-        elif "frame" in topic:
-            if self.id in message:
-                logger.log("Frame update")
-                logger.log(message)
-                data = json.loads(message)
-                for instruction in data:
-                    if instruction['address'] == self.id:            
-                        self.view.render_color(HexColor(instruction['color']))
-            else:
-                # frame message not for us
-                pass    
-        
         elif "poke" in topic:
             logger.log("Poke request")
             self.call_home()
@@ -82,14 +74,18 @@ class App():
                 logger.log("Firmware Update")
                 self.view.off()  
                 self.broker.disconnect()
+                self.view.render_color(BLUE)
                 self.updater.check_for_update_to_install_during_next_reboot()
-                logger.log("checked")
+                self.flash(BLUE)
                 reset()
         
         elif "config" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
                 logger.log("config update")
+                self.view.render_color(GREEN)
                 provider.update_config(message)
+                self.flash(GREEN)
+                reset()
         
         elif "sleep" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
@@ -100,7 +96,7 @@ class App():
 
         elif "restart" in topic:
             if len(s) == 1 or (len(s) > 1 and s[1] == self.id):
-                self.view.off() 
+                self.flash(RED)
                 logger.log("restarting")
                 reset()
         else:
@@ -117,6 +113,13 @@ class App():
         logger.log("Registering Light")
         self.broker.publish("register", update)
 
+    def flash(self, color):
+        for i in range(0,3):
+            self.view.render_color(color)
+            time.sleep(0.25)
+            self.view.off() 
+            time.sleep(0.25)
+
     def get_version(self):
         try:
             f = open("lantern/.version", "r")
@@ -130,8 +133,6 @@ class App():
         logger.log("Subscribing to topics")
         self.broker.subscribe("color")
         self.broker.subscribe("color/"+self.id)
-
-        self.broker.subscribe("frame")
 
         self.broker.subscribe("update")
         self.broker.subscribe("update/"+self.id)

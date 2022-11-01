@@ -121,6 +121,10 @@ class NeoPixel(dict):
 
     def write(self):
         print(self[0])
+    
+    def fill(self, color):
+        self[0] = color
+        pass
 
 
 class MQTTException(Exception):

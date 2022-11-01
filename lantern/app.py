@@ -1,6 +1,6 @@
 import time
 import json
-from .color import HexColor
+from .color import HexColor, to_hex
 from .view import View
 from .logging import logger
 from .config_provider import provider
@@ -14,7 +14,7 @@ try:
     from machine import reset
     from machine import deepsleep
     from network import WLAN
-
+    from time import ticks_ms
     from .mqtt import MQTTClient
     from umqtt.simple import MQTTException
 
@@ -26,10 +26,12 @@ except (ImportError, ModuleNotFoundError) as e:
     from mocks import reset
     from mocks import deepsleep
     from mocks import MQTTException
+    from mocks import ticks_ms
 
 RED = HexColor("FF0000")
 GREEN = HexColor("00FF00")
 BLUE = HexColor("0000FF")
+BLACK = HexColor("000000")
 
 class App():
     def __init__(self, udpater=None, id=None):
@@ -37,7 +39,8 @@ class App():
         config = provider.config
 
         self.updater = OTAUpdater('https://github.com/mcrlab/LanternESP32', module='./', main_dir='lantern', proxy=config['PROXY_SERVER'])
-    
+
+        self.sleep_interval = config['SLEEP_INTERVAL']
 
         if config['LOGGING']:
             logger.enable()
@@ -52,11 +55,15 @@ class App():
         self.broker.set_callback(self.subscription_callback)
         self.view = View(Pin(config['VIEW_PIN'], Pin.OUT) , config['NUMBER_OF_PIXELS'])    
         self.version = self.get_version()
-
+        self.last_update = 0
+        
+        
     def subscription_callback(self, topic, message):
+        self.last_update = ticks_ms()
         if(type(topic) is bytes):
             topic = topic.decode("utf-8")
         logger.log(topic)
+
         s = topic.split("/")
 
         if "color" in topic:
@@ -105,7 +112,7 @@ class App():
     def register(self):
         update = json.dumps({
             "id" : self.id,
-            "color" : self.view.current_color.as_hex(),
+            "color" : to_hex(self.view.current_color),
             "version": self.version,
             "platform": sys.platform,
             "config": provider.config
@@ -164,27 +171,34 @@ class App():
 
     def main(self):
 
-        try:
-            config = provider.config
-            
-            logger.log("Starting app V:{0}".format(self.version))
-            logger.log("ID {0}".format(self.id))
-            self.connect_to_wifi(config)
-            self.updater.download_and_install_update_if_available()
-            self.broker.connect()
-            self.subscribe()
-            self.register()
-            
-            while True:        
-                self.broker.check_msg()
-                self.view.render()
-        except (TypeError, OSError, Exception, MQTTException) as e:
-            logger.warn(e)
-        except(KeyboardInterrupt) as e:
-            logger.log("Exiting")
-            pass
-        finally:
-            self.view.off()
-            logger.log("sleeping")
-            time.sleep(10)
-            reset()
+    # try:
+        config = provider.config
+        
+        logger.log("Starting app V:{0}".format(self.version))
+        logger.log("ID {0}".format(self.id))
+        self.connect_to_wifi(config)
+        self.updater.download_and_install_update_if_available()
+        self.broker.connect()
+        self.subscribe()
+        self.register()
+        
+        while True:        
+            self.view.render()
+            if (self.last_update + self.sleep_interval  < ticks_ms()) and self.view.current_color is not BLACK:
+                logger.log("Sleeping") 
+                logger.log(self.last_update)
+                logger.log(self.sleep_interval)
+                logger.log(ticks_ms())
+                self.view.render_color(BLACK)
+            self.broker.check_msg()
+    # except (TypeError, OSError, Exception, MQTTException) as e:
+    #     logger.warn(e)
+    #     print(e)
+    # except(KeyboardInterrupt) as e:
+    #     logger.log("Exiting")
+    #     pass
+    # finally:
+    #     self.view.off()
+    #     logger.log("sleeping")
+    #     time.sleep(10)
+    #     reset()

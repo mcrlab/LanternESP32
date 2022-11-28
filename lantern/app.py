@@ -68,9 +68,8 @@ class App():
 
         if "color" in topic:
             logger.log("Color update")
-            data = json.loads(message)
             logger.log(message)
-            self.view.render_color(HexColor(data['color']))
+            self.view.render_color(HexColor(message))
         
         elif "poke" in topic:
             logger.log("Poke request")
@@ -171,7 +170,7 @@ class App():
 
     def main(self):
 
-    # try:
+    try:
         config = provider.config
         
         logger.log("Starting app V:{0}".format(self.version))
@@ -191,14 +190,14 @@ class App():
                 logger.log(ticks_ms())
                 self.view.render_color(BLACK)
             self.broker.check_msg()
-    # except (TypeError, OSError, Exception, MQTTException) as e:
-    #     logger.warn(e)
-    #     print(e)
-    # except(KeyboardInterrupt) as e:
-    #     logger.log("Exiting")
-    #     pass
-    # finally:
-    #     self.view.off()
-    #     logger.log("sleeping")
-    #     time.sleep(10)
-    #     reset()
+    except (TypeError, OSError, Exception, MQTTException) as e:
+        logger.warn(e)
+        print(e)
+    except(KeyboardInterrupt) as e:
+        logger.log("Exiting")
+        pass
+    finally:
+        self.view.off()
+        logger.log("sleeping")
+        time.sleep(10)
+        reset()

@@ -169,35 +169,34 @@ class App():
 
 
     def main(self):
-
-    try:
-        config = provider.config
-        
-        logger.log("Starting app V:{0}".format(self.version))
-        logger.log("ID {0}".format(self.id))
-        self.connect_to_wifi(config)
-        self.updater.download_and_install_update_if_available()
-        self.broker.connect()
-        self.subscribe()
-        self.register()
-        
-        while True:        
-            self.view.render()
-            if (self.last_update + self.sleep_interval  < ticks_ms()) and self.view.current_color is not BLACK:
-                logger.log("Sleeping") 
-                logger.log(self.last_update)
-                logger.log(self.sleep_interval)
-                logger.log(ticks_ms())
-                self.view.render_color(BLACK)
-            self.broker.check_msg()
-    except (TypeError, OSError, Exception, MQTTException) as e:
-        logger.warn(e)
-        print(e)
-    except(KeyboardInterrupt) as e:
-        logger.log("Exiting")
-        pass
-    finally:
-        self.view.off()
-        logger.log("sleeping")
-        time.sleep(10)
-        reset()
+        try:
+            config = provider.config
+            
+            logger.log("Starting app V:{0}".format(self.version))
+            logger.log("ID {0}".format(self.id))
+            self.connect_to_wifi(config)
+            self.updater.download_and_install_update_if_available()
+            self.broker.connect()
+            self.subscribe()
+            self.register()
+            
+            while True:        
+                self.view.render()
+                if (self.last_update + self.sleep_interval  < ticks_ms()) and self.view.current_color is not BLACK:
+                    logger.log("Sleeping") 
+                    logger.log(self.last_update)
+                    logger.log(self.sleep_interval)
+                    logger.log(ticks_ms())
+                    self.view.render_color(BLACK)
+                self.broker.check_msg()
+        except (TypeError, OSError, Exception, MQTTException) as e:
+            logger.warn(e)
+            print(e)
+        except(KeyboardInterrupt) as e:
+            logger.log("Exiting")
+            pass
+        finally:
+            self.view.off()
+            logger.log("sleeping")
+            time.sleep(10)
+            reset()
